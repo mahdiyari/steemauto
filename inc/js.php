@@ -507,8 +507,6 @@ function removeuserfromlist(user){
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-console.log(this.responseText);
-			console.log(this.responseText0);
 			if(this.responseText == 1){
 				$.notify({
 					icon: 'pe-7s-check',
@@ -563,11 +561,9 @@ function commentupvotesettings(user){
 	}else{
 		enable = 0;
 	}
-console.log('ss');
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-console.log(this.responseText);
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
@@ -593,6 +589,77 @@ console.log(this.responseText);
 	xmlhttp.open("POST", "dash.php?i=14", true);
 	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable);
+	
+	return 1;
+}
+
+function enableclaimreward(user){
+	$('.btn').attr('disabled','true');
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+
+			if(this.responseText == 1){	
+				$.notify({
+					icon: 'pe-7s-check',
+					message: "Changes Successfully Saved!"
+				},{
+					type: 'success',
+					timer: 6000
+				});
+				location.reload(); 
+			}else{
+				$.notify({
+					icon: 'pe-7s-attention',
+					message: "Unknown Error!"
+				},{
+					type: 'danger',
+					timer: 6000
+				});
+				$('.btn').removeAttr('disabled');
+			}
+			
+		}
+	};
+	xmlhttp.open("POST", "dash.php?i=16", true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.send("enable=1");
+	
+	return 1;
+}
+function disableclaimreward(user){
+	$('.btn').attr('disabled','true');
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+
+			if(this.responseText == 1){	
+				$.notify({
+					icon: 'pe-7s-check',
+					message: "Changes Successfully Saved!"
+				},{
+					type: 'success',
+					timer: 6000
+				});
+				location.reload(); 
+			}else{
+				$.notify({
+					icon: 'pe-7s-attention',
+					message: "Unknown Error!"
+				},{
+					type: 'danger',
+					timer: 6000
+				});
+				$('.btn').removeAttr('disabled');
+			}
+			
+		}
+	};
+	xmlhttp.open("POST", "dash.php?i=16", true);
+	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.send("disable=1");
 	
 	return 1;
 }
