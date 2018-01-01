@@ -99,6 +99,12 @@ if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
 				<p>Scheduled Posts</p>
 			</a>
 		</li>
+		<li <? if($active ==6){echo 'class="active"';} ?>>
+			<a href="/dash.php?i=16">
+				<i class="pe-7s-wallet"></i>
+				<p>Claim Rewards</p>
+			</a>
+		</li>
 		<li>
 			<a onclick="logout();">
 				<i class="pe-7s-back-2"></i>
