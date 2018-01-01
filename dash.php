@@ -41,6 +41,9 @@ if(isset($_GET['i'])){
 		$a =15;
 	}elseif($i ==133){ // Remove from comment list
 		$a =133;
+	}elseif($i ==16){ // Claim Rewards
+		$a =16;
+		$active = 6;
 	}else{
 		$a = 0;
 		$active = 1;
@@ -710,6 +713,68 @@ if($a == 14 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 	}
 }
 
+if($a == 16 && isset($_POST['enable'])){ // Enablig claim rewards
+	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
+		require_once('d_b.php');
+		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
+		$stmt->bind_param('s', $name);
+		$name = $_COOKIE['luser'];
+		$pw = $_COOKIE['lpw'];
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$row = $result->fetch_assoc();
+		if($row['pw'] == $pw){
+			$log = 1;
+		}else{
+			$log = 0;
+		}
+		
+		if($log == 1){
+			$stmt = $conn->prepare("UPDATE `users` SET `claimreward`=1 WHERE `user`=?");
+			$stmt->bind_param('s', $name);
+			$stmt->execute();
+			echo 1;
+			exit();
+		}else{
+			echo 8;
+			exit();
+		}
+	}else{
+		echo 3;
+		exit();
+	}
+}
+if($a == 16 && isset($_POST['disable'])){ // Disabling claim rewards
+	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
+		require_once('d_b.php');
+		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
+		$stmt->bind_param('s', $name);
+		$name = $_COOKIE['luser'];
+		$pw = $_COOKIE['lpw'];
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$row = $result->fetch_assoc();
+		if($row['pw'] == $pw){
+			$log = 1;
+		}else{
+			$log = 0;
+		}
+		
+		if($log == 1){
+			$stmt = $conn->prepare("UPDATE `users` SET `claimreward`=0 WHERE `user`=?");
+			$stmt->bind_param('s', $name);
+			$stmt->execute();
+			echo 1;
+			exit();
+		}else{
+			echo 8;
+			exit();
+		}
+	}else{
+		echo 3;
+		exit();
+	}
+}
 
 require_once('header.php');
 require_once('functions.php');
@@ -783,6 +848,8 @@ if($auth == 0){ ?>
 	include('inc/commentupvote.php');
 }elseif($a == 15){ // List of trailers and fanbase followers
 	include('inc/list.php');
+}elseif($a == 16){ // Claim Rewards
+	include('inc/claimreward.php');
 }else{
 	header("Location: /");
 } 
