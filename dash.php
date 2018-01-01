@@ -825,7 +825,8 @@ if($auth == 0){ ?>
 <a href="dash.php?i=1" class="btn btn-primary">Curation Trail</a>
 <a href="dash.php?i=2" class="btn btn-primary">Fan Base</a><br>
 <a style="margin-top:5px;" href="dash.php?i=13" class="btn btn-primary">Upvote Comments</a>
-<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Scheduled Posts</a><br><br>
+<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Scheduled Posts</a><br>
+<a style="margin-top:5px;" href="dash.php?i=16" class="btn btn-primary">Claim Rewards</a><br><br>
 <a href="/auth" class="btn btn-danger">UnAuthorize (Leaving SteemAuto)</a>
 
 
