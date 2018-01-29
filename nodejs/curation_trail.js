@@ -129,7 +129,7 @@ var trailupvote = function(userr,author,permlink,fweight){
 									console.log('trail to delay');
 									var time = parseInt(now+(aftermin*60));
 									time = Math.floor(time);
-									if(fcurator == 1){
+									if(fcurator == 1){//following curator weight or not. then add to the queue to upvote later.
 										con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`) VALUES ("'+follower+'","'+author+'","'+permlink+'","'+weight+'","'+time+'","0","'+userr+'")', function (error, results, fields) {
 										});
 									}else{
