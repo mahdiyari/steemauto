@@ -12,10 +12,25 @@ steem.api.streamBlockNumber(function (err1, newestblock) {
     console.log(newestblock);
 });
 
+// Check voting power limit
+function checkpowerlimit(voter,author,permlink,weight,type){
+	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+		for(i in results){
+			var powernow = results[i].current_power;
+			var powerlimit = results[i].limit_power;
+			if(powernow > powerlimit){
+				upvote(voter,author,permlink,weight);
+			}else{
+				console.log('power is under limit user '+voter);
+			}
+		}
+	});
+	
+	return 1;
+}
 
 // Upvote function - included 0 seconds delay!
 var delay = 0;
-
 function upvote(voter,author,permlink,weight,type){
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -54,7 +69,7 @@ setInterval(function(){
 								var id = results[i].id;
 								var type = results[i].trail_fan;
 								
-								upvote(voter,author,permlink,weight,type); //upvote
+								checkpowerlimit(voter,author,permlink,weight,type); //upvote
 								
 								console.log('delaied to up.');
 								removing(id); //remove from queue
