@@ -74,7 +74,22 @@ setInterval(function(){
 	},30000);
 },100000);
 
-
+// Check voting power limit
+function checkpowerlimit(voter,author,permlink,weight){
+	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+		for(i in results){
+			var powernow = results[i].current_power;
+			var powerlimit = results[i].limit_power;
+			if(powernow > powerlimit){
+				upvote(voter,author,permlink,weight);
+			}else{
+				console.log('power is under limit user '+voter);
+			}
+		}
+	});
+	
+	return 1;
+}
 // Upvote function - included 0 seconds delay!
 var delay = 0;
 function upvote(voter,author,permlink,weight){
@@ -116,7 +131,7 @@ var fanupvote = function(author,permlink){
 						});
 						console.log('fan to delay');
 					}else{
-						upvote(follower,author,permlink,weight);
+						checkpowerlimit(follower,author,permlink,weight);
 						console.log('fan to up');
 					}
 				}
