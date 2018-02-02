@@ -16,9 +16,7 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 
 
 <div class="content"> <!-- 1 -->
-
-<? 	if($searchtrail == 1){	?>
-
+<? if($searchtrail == 1){	?>
 		<div class="row" style="margin:0 !important"> <!-- 2 -->
 			<div class="col-md-3"></div>
 				<div class="col-md-6"> <!-- 3 -->
@@ -54,60 +52,60 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 								<strong>Description:</strong><span> <? echo htmlspecialchars($row['description']); ?></span><br>
 								<strong>Followers:</strong><span> <? echo $row['followers']; ?> (<a href="/dash.php?i=15&id=1&user=<? echo htmlspecialchars($searchedtrail); ?>">Show enable followers</a>)</span><br><br>
 								<? if($alreadyfollowed){ ?>
-									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $row['user']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
-									<button onclick="showset('1');" class="btn btn-primary">Settings</button>
+									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $row['user']; ?>');};" class="btn btn-danger" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>UNFOLLOW</button>
+									<button onclick="showset('1');" class="btn btn-primary" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>Settings</button>
 									<? 
 									$resultt = $conn->query("SELECT * FROM `followers` WHERE `follower` = '$name' AND `trailer`='$searchedtrail'");
 									foreach($resultt as $n){}
 									?>
 									<!-- Settings -->
-								<div class="row" style="margin:0 !important;">
-									<div style="text-align:left; display:none; padding:20px;" id="set1" class="col-md-12">
-										<form onsubmit="settings('<? echo $row['user']; ?>'); return false;">
-												<label>Settings for Trailer: <a href="https://steemit.com/@<? echo $row['user']; ?>" target="_blank">@<? echo $row['user']; ?></a></label>
-												<div id="setweight<? echo $row['user']; ?>" <? if($n['fcurator'] == 1){echo 'style="display:none;"';} ?>><label>Weight: Default Weight is 100%. leave it empty to be default.</label>
-											  <input id="weight<? echo $row['user']; ?>" placeholder="Voting Weight" name="weight" type="number" class="form-control" value="<? echo $n['weight']/100; ?>" step="0.01" min="0" max="100">
-											  </div>
-											 <li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
-												Follow Curator Weight:
-												<div class="material-switch pull-right">
-													<input id="fcurator<? echo $row['user']; ?>" name="fcurator" class="fcurator" type="checkbox" <? if($n['fcurator'] == 1){echo 'checked';} ?>/>
-													<label for="fcurator<? echo $row['user']; ?>" id="fcurator1" class="label-primary"></label>
-												</div>
-											</li>
-											  <label>Time to wait before voting. Default Time is 0 minutes.</label>
-											  <input id="aftermin<? echo $row['user']; ?>" value="<? echo $n['aftermin']; ?>" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
-												<li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
-												Enabled:
-													<div class="material-switch pull-right">
-														<input id="enable<? echo $row['user']; ?>" name="enable" class="enable" type="checkbox" <? if($n['enable'] == 1){echo 'checked';} ?>/>
-														<label for="enable<? echo $row['user']; ?>" id="enable" class="label-success"></label>
+									<div class="row" style="margin:0 !important;">
+										<div style="text-align:left; display:none; padding:20px;" id="set1" class="col-md-12">
+											<form onsubmit="settings('<? echo $row['user']; ?>'); return false;">
+												<b style="color:orange;">Read <a target="_blank" href="/faq.php">FAQ</a> before editing.</b><br><br>
+												<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+													<strong>Settings for Trailer: <a href="https://steemit.com/@<? echo $row['user']; ?>" target="_blank">@<? echo $row['user']; ?></a></strong>
+													<br><br>
+													<div class="form-check" style="margin-bottom:5px;">
+														<input class="form-check-input" type="checkbox" value="" id="enable<? echo $row['user']; ?>" <? if($n['enable']){echo 'checked';} ?>>
+														<label style="color:#2b0808;" class="form-check-label" id="enabling" for="defaultCheck1">
+															Enable (uncheck for disabling)
+														</label>
 													</div>
-												</li>
-											  <input style="margin-top:10px;"value="Save Settings" type="submit" class="btn btn-primary">
-										 </form>
-									 </div>
-								</div>
-								<script>
-									$(document).ready(function() {
-										if(document.getElementById('fcurator<? echo $row['user']; ?>').checked){
-											  $('#setweight<? echo $row['user']; ?>').hide(500);
-										  }else{
-											   $('#setweight<? echo $row['user']; ?>').show(500);
-										  } 
-										$('#fcurator<? echo $row['user']; ?>').change(function() {
-											if(document.getElementById('fcurator<? echo $row['user']; ?>').checked){
-												  $('#setweight<? echo $row['user']; ?>').hide(500);
-											  }else{
-												   $('#setweight<? echo $row['user']; ?>').show(500);
-											  }      
-										});
-									});
-								</script>
-								<!-- /Settings -->
+													<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+														<label>Voting weight (%): (Default is 50%)</label>
+														<input id="weight<? echo $row['user']; ?>" placeholder="Voting weight" name="weight" type="number" class="form-control" value="<? echo $n['weight']/100; ?>" step="0.01" min="0" max="100">
+														
+														<div class="form-check">
+															<label style="color:#2b0808;" class="form-check-label">
+																<input class="form-check-input" type="radio" name="votingway<? echo $row['user']; ?>" id="votingway" value="1" <? if($n['votingway'] == 1){echo 'checked';} ?>>
+																Scale voting weight (default)
+															</label>
+														</div>
+														<div class="form-check">
+															<label style="color:#2b0808;" class="form-check-label">
+																<input class="form-check-input" type="radio" name="votingway<? echo $row['user']; ?>" id="votingway" value="2" <? if($n['votingway'] == 2){echo 'checked';} ?>>
+																Fixed voting weight
+															</label>
+														</div>
+													</div>
+													
+													
+													<label>Time to wait before voting (minutes): (Default is 0)</label>
+													<input id="aftermin<? echo $row['user']; ?>" value="<? echo $n['aftermin']; ?>" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
+													
+													
+													
+													<input style="margin-top:10px;"value="Save Settings" type="submit" class="btn btn-primary">
+												</div>
+											</form>
+										</div>
+									</div>
 									
+									<!-- /Settings -->
+										
 								<? }else{ ?>
-									<button onclick="if(confirm('Are you sure?')){follow('<? echo $row['user']; ?>');};" class="btn btn-primary">FOLLOW</button>
+										<button onclick="if(confirm('Are you sure?')){follow('<? echo $row['user']; ?>');};" class="btn btn-primary" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>FOLLOW</button>
 								<? } ?>
 								
 								
@@ -180,9 +178,10 @@ or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome(
 							<tr>
 							  <th>#</th>
 							  <th>Username</th>
-							  <th>Description</th>
+							  
 							  <th>Followers</th>
 							  <th>Weight</th>
+							  <th>Method</th>
 							  <th>Wait Time</th>
 							  <th>Status</th>
 							  <th>Action</th>
@@ -198,90 +197,105 @@ or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome(
 									$nn = $n['trailer'];
 									$result = $conn->query("SELECT * FROM `trailers` WHERE `user` = '$nn'");
 									foreach($result as $b){
-										if($n['fcurator'] == 1){
-											$w = 'Auto <abbr data-toggle="tooltip" title="You will Follow Curator Upvote Weight.">?</abbr>';
-											$fc = 1;
-											if($n['enable'] == 0){
-												$status = '<b style="color:red;">Disabled <abbr data-toggle="tooltip" title="if it is Auto Disabled, You don\'t have enough Steem Power to follow Curator upvote Weight, enter a weight manually to Enable.">?</abbr></b>';
-												$enb =0;
-											}else{
-												$status = '<b style="color:green;">Enabled</b>';
-												$enb =1;
-											}
+										$w = ($n['weight']/100).'%';
+										if($n['votingway'] == 1){
+											$method = 'Scale <abbr data-toggle="tooltip" title="Read FAQ">?</abbr>';
 										}else{
-											$w = ($n['weight']/100).'%';
-											$fc = 0;
-											if($n['enable'] == 0){
-												$status = '<b style="color:red;">Disabled <abbr data-toggle="tooltip" title="if it is Auto Disabled, Voting Weight is Too Small. Increase Voting Weight to Enable.">?</abbr></b>';
-												$enb =0;
-											}else{
-												$status = '<b style="color:green;">Enabled</b>';
-												$enb =1;
-											}
+											$method = 'Fixed <abbr data-toggle="tooltip" title="Read FAQ">?</abbr>';
+										}
+										if($n['enable'] == 0){
+											$status = '<b style="color:red;">Disabled <abbr data-toggle="tooltip" title="if it is Auto Disabled, Voting Weight is Too Small. Increase Voting Weight to Enable.">?</abbr></b>';
+											$enb =0;
+										}else{
+											$status = '<b style="color:green;">Enabled</b>';
+											$enb =1;
 										}
 							?>
 
 								<tr class="tr1">
 									<td data-title="ID"><? echo $k; ?></td>
 									<td data-title="Name"><a href="/dash.php?i=1&trail=<? echo $b['user']; ?>" target="_blank">@<? echo $b['user']; ?></a></td>
-									<td data-title="Link"><? echo substr(strip_tags($b['description']),0,100); ?></td>
+									
 									<td data-title="Status"><? echo $b['followers']; ?></td>
 									<td data-title="Status"><? echo $w; ?></td>
+									<td data-title="Status"><? echo $method; ?></td>
 									<td data-title="Status"><? echo $n['aftermin']; ?> min</td>
 									<td data-title="Status"><? echo $status; ?></td>
 
 									<td data-title="Status">
-									<button onclick="showset('<? echo $k; ?>');" class="btn btn-primary">Settings</button>
+									<button data-toggle="modal" data-target="#myModal<? echo $b['user']; ?>" class="btn btn-primary">Settings</button>
 									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $b['user']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
 									</td> 
 								</tr>	
 								<!-- Settings -->
-								<div class="row" style="margin:0 !important;">
-									<div class="col-md-3"></div>
-									<div style="text-align:left; display:none; padding:20px;" id="set<? echo $k; ?>" class="col-md-6">
-										<form onsubmit="settings('<? echo $b['user']; ?>'); return false;">
-												<label>Settings for Trailer: <a href="https://steemit.com/@<? echo $b['user']; ?>" target="_blank">@<? echo $b['user']; ?></a></label>
-												<div id="setweight<? echo $b['user']; ?>" <? if($fc == 1){echo 'style="display:none;"';} ?>><label>Weight: Default Weight is 100%. leave it empty to be default.</label>
-											  <input id="weight<? echo $b['user']; ?>" placeholder="Voting Weight" name="weight" type="number" class="form-control" value="<? echo $n['weight']/100; ?>" step="0.01" min="0" max="100">
-											  </div>
-											 <li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
-												Follow Curator Weight:
-												<div class="material-switch pull-right">
-													<input id="fcurator<? echo $b['user']; ?>" name="fcurator" class="fcurator" type="checkbox" <? if($fc == 1){echo 'checked';} ?>/>
-													<label for="fcurator<? echo $b['user']; ?>" id="fcurator1" class="label-primary"></label>
+								
+								<div class="modal fade" id="myModal<? echo $b['user']; ?>" role="dialog">
+									<div class="modal-dialog">
+
+									<!-- Modal content-->
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+												<h4 class="modal-title">Settings: @<? echo $b['user']; ?></h4>
+											</div>
+											<div class="modal-body">
+												<!-- body -->
+												<div style="text-align:left; display:; padding:20px;" id="set<? echo $k; ?>" class="col-md-12">
+													<form onsubmit="settings('<? echo $b['user']; ?>'); return false;">
+														<b style="color:orange;">Read <a target="_blank" href="/faq.php">FAQ</a> before editing.</b><br><br>
+														<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+															<strong>Settings for Trailer: <a href="https://steemit.com/@<? echo $b['user']; ?>" target="_blank">@<? echo $b['user']; ?></a></strong>
+															<br><br>
+															<div class="form-check" style="margin-bottom:5px;">
+																<input class="form-check-input" type="checkbox" value="" id="enable<? echo $b['user']; ?>" <? if($n['enable']){echo 'checked';} ?>>
+																<label style="color:#2b0808;" class="form-check-label" id="enabling" for="defaultCheck1">
+																	Enable (uncheck for disabling)
+																</label>
+															</div>
+															<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+																<label>Voting weight (%): (Default is 50%)</label>
+																<input id="weight<? echo $b['user']; ?>" placeholder="Voting weight" name="weight" type="number" class="form-control" value="<? echo $n['weight']/100; ?>" step="0.01" min="0" max="100">
+																
+																<div class="form-check">
+																	<label style="color:#2b0808;" class="form-check-label">
+																		<input class="form-check-input" type="radio" name="votingway<? echo $b['user']; ?>" id="votingway" value="1" <? if($n['votingway'] == 1){echo 'checked';} ?>>
+																		Scale voting weight (default)
+																	</label>
+																</div>
+																<div class="form-check">
+																	<label style="color:#2b0808;" class="form-check-label">
+																		<input class="form-check-input" type="radio" name="votingway<? echo $b['user']; ?>" id="votingway" value="2" <? if($n['votingway'] == 2){echo 'checked';} ?>>
+																		Fixed voting weight
+																	</label>
+																</div>
+															</div>
+															
+															
+															<label>Time to wait before voting (minutes): (Default is 0)</label>
+															<input id="aftermin<? echo $b['user']; ?>" value="<? echo $n['aftermin']; ?>" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
+															
+															
+															
+															<input style="margin-top:10px;"value="Save Settings" type="submit" class="btn btn-primary">
+														</div>
+													</form>
 												</div>
-											</li>
-											  <label>Time to wait before voting. Default Time is 0 minutes.</label>
-											  <input id="aftermin<? echo $b['user']; ?>" value="<? echo $n['aftermin']; ?>" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
-												<li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
-												Enabled:
-													<div class="material-switch pull-right">
-														<input id="enable<? echo $b['user']; ?>" name="enable" class="enable" type="checkbox" <? if($enb == 1){echo 'checked';} ?>/>
-														<label for="enable<? echo $b['user']; ?>" id="enable" class="label-success"></label>
-													</div>
-												</li>
-											  <input style="margin-top:10px;"value="Save Settings" type="submit" class="btn btn-primary">
-										 </form>
-									 </div>
-									<div class="col-md-3"></div>
+											</div>
+											<div style="border-top:0;" class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+											</div>
+										</div>
+
+									</div>
 								</div>
 								<script>
-									$(document).ready(function() {
-										if(document.getElementById('fcurator<? echo $b['user']; ?>').checked){
-											  $('#setweight<? echo $b['user']; ?>').hide(500);
-										  }else{
-											   $('#setweight<? echo $b['user']; ?>').show(500);
-										  } 
-										$('#fcurator<? echo $b['user']; ?>').change(function() {
-											if(document.getElementById('fcurator<? echo $b['user']; ?>').checked){
-												  $('#setweight<? echo $b['user']; ?>').hide(500);
-											  }else{
-												   $('#setweight<? echo $b['user']; ?>').show(500);
-											  }      
-										});
-									});
+								$(document).ready(function(){
+									$('#myModal<? echo $b['user']; ?>').appendTo("body");
+								});
 								</script>
-								<!-- /Settings -->		
+								
+							
+						
 
 								<?
 								$k += 1;	
@@ -312,7 +326,7 @@ or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome(
 				<form action="/dash.php" class="form" method="GET">
 					<label for="trail">Trail name:</label><input class="form-control" id="trail" placeholder="steemauto" name="trail" type="text" required/>
 					<input name="i" type="number" value="1" style="display:none;" required>
-					<input style="margin-top:7px;" class="btn btn-primary" name="submit" value="Search" type="submit"/>
+					<input style="margin-top:7px;" class="btn btn-primary" value="Search" type="submit"/>
 				</form>
 			</div>
 		</div>
