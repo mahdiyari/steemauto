@@ -71,6 +71,22 @@ setInterval(function(){
 	},30000);
 },100000);
 
+// Check voting power limit
+function checkpowerlimit(voter,author,permlink,weight,votingway,trailer){
+	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+		for(i in results){
+			var powernow = results[i].current_power;
+			var powerlimit = results[i].limit_power;
+			if(powernow > powerlimit){
+				upvote(voter,author,permlink,weight,votingway,trailer);
+			}else{
+				console.log('power is under limit user '+voter);
+			}
+		}
+	});
+	
+	return 1;
+}
 
 // Upvote function - included 0 seconds delay!
 var delay = 0;
@@ -120,16 +136,16 @@ var trailupvote = function(userr,author,permlink,fweight){
 							if(voted == 0){ //check if already upvoted or not (this process is available on upvote server too)
 								var weight = results[i].weight;
 								var aftermin = results[i].aftermin;
-								var fcurator = results[i].fcurator;
-								if(fcurator == 1){
-									weight = fweight;
+								var votingway = results[i].votingway;
+								if(votingway == 1){
+									weight = parseInt((weight/10000)*fweight);
 								}
 								var secs = aftermin*60;
 								if(aftermin > 0){
 									console.log('trail to delay');
 									var time = parseInt(now+(aftermin*60));
 									time = Math.floor(time);
-									if(fcurator == 1){//following curator weight or not. then add to the queue to upvote later.
+									if(votingway == 1){
 										con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`) VALUES ("'+follower+'","'+author+'","'+permlink+'","'+weight+'","'+time+'","0","'+userr+'")', function (error, results, fields) {
 										});
 									}else{
@@ -137,7 +153,7 @@ var trailupvote = function(userr,author,permlink,fweight){
 										});
 									}
 								}else{
-									upvote(follower,author,permlink,weight,fcurator,userr);
+									checkpowerlimit(follower,author,permlink,weight,votingway,userr);
 									console.log('trail to up');
 								}
 							}						
