@@ -35,7 +35,7 @@ if(isset($_GET['i'])){
 	}elseif($i ==13){ // Comment Auto Upvote
 		$a =13;
 		$active = 5;
-	}elseif($i ==14){ // Comment Auto Upvote set
+	}elseif($i ==14){ // Comment Auto Upvote settings
 		$a =14;
 	}elseif($i ==15){ // list of trailers and fanbase
 		$a =15;
@@ -75,7 +75,7 @@ if($a == 3 && isset($_POST['user'])){
 				foreach($c as $c){}
 			}
 			if($c == 0){
-				$result = $conn->query("INSERT INTO `followers`(`trailer`, `follower`, `weight`) VALUES ('$userr','$name','10000')");
+				$result = $conn->query("INSERT INTO `followers`(`trailer`, `follower`, `weight`) VALUES ('$userr','$name','5000')");
 				$result = $conn->query("UPDATE `trailers` SET `followers`=`followers`+1 WHERE `user`='$userr'");
 				echo 1;
 				exit();
@@ -133,16 +133,16 @@ if($a == 4 && isset($_POST['user'])){ // Unfollowing a Trailer
 		exit();
 	}
 }
-if($a == 5 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable'])){ // Settings For a Trailer
+if($a == 5 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable']) && isset($_POST['votingway'])){ // Settings For a Trailer
 	$userr =$_POST['user'];
 	$minute =$_POST['minute'];
 	$weight =$_POST['weight'];
-	$fcurator =$_POST['fcurator'];
+	$votingway =$_POST['votingway'];
 	$enable =$_POST['enable'];
-	if($fcurator == 1){
-		$fcurator = 1;
+	if($votingway == 1){
+		$votingway = 1; //scale weight
 	}else{
-		$fcurator = 0;
+		$votingway = 2; //fixed weight
 	}
 	if($enable == 1){
 		$enable = 1;
@@ -178,7 +178,7 @@ if($a == 5 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['
 				foreach($c as $c){}
 			}
 			if($c == 1){
-				$result = $conn->query("UPDATE `followers` SET `weight`='$weight' , `aftermin`='$minute',`fcurator`='$fcurator',`enable`='$enable' WHERE `trailer`='$userr' AND `follower`='$name'");
+				$result = $conn->query("UPDATE `followers` SET `weight`='$weight' , `aftermin`='$minute',`votingway`='$votingway',`enable`='$enable' WHERE `trailer`='$userr' AND `follower`='$name'");
 				echo 1;
 				exit();
 			}else{
@@ -712,7 +712,6 @@ if($a == 14 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 		exit();
 	}
 }
-
 if($a == 16 && isset($_POST['enable'])){ // Enablig claim rewards
 	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
 		require_once('d_b.php');
@@ -776,10 +775,14 @@ if($a == 16 && isset($_POST['disable'])){ // Disabling claim rewards
 	}
 }
 
-require_once('header.php');
-require_once('functions.php');
+
+
+
+require_once('he_ad.php');
+require_once('func.php');
 if($log == 0){
-	header("Location: register",true);
+	echo 'You should login.<script type="text/javascript">window.location.href = "/register";</script>';
+	header("Location: /");
 	exit();
 }
 $x = json_decode(call('get_accounts','["'.$name.'"]'));
@@ -791,7 +794,14 @@ foreach($y as $y){
 		break;
     }
 }
-
+//changing power limit
+if(isset($_POST['powerlimit']) && is_numeric($_POST['powerlimit']) && $_POST['powerlimit'] >= 1 && $_POST['powerlimit'] <= 99){
+	$submittedpowerlimit = $_POST['powerlimit'];
+	$stmt = $conn->prepare("UPDATE `users` SET `limit_power`=? WHERE `user`=?");
+	$stmt->bind_param('ss', $submittedpowerlimit,$name);
+	$stmt->execute();
+	echo '<script>setTimeout(function(){$.notify({icon: "pe-7s-check",message: "Successfully saved."},{type: "success",timer: 6000});},1000);</script>';
+}
 
 include('inc/js.php'); // some css + js functions
 
@@ -801,9 +811,10 @@ if($auth == 0){ ?>
 <div class="card">
 <div class="content">
 <center>
+<h5 style="color:red;">Leave Steemauto if you don't know about it or you can't understand. You may harm your steem account.</h5>
 <h3>Welcome <? echo $name; ?>,</h3>
 <br>Please add @steemauto to your Account's posting auths by One of following Apps:<br>
-<br><a class="btn btn-success" href="https://v2.steemconnect.com/authorize/@steemauto/?redirect_uri=https://steemauto.com/dash.php">SteemConnect</a> or <a class="btn btn-success" href="https://steemauto.com/auth/">SteemAuto</a>
+<br><a class="btn btn-success" href="https://steemconnect.com/authorize/@steemauto/?redirect_uri=https://steemauto.com/dash.php">SteemConnect (recommended)</a> or <a class="btn btn-success" href="https://steemauto.com/auth/">SteemAuto</a>
 <br><br>Both Are Secure.
 <br>otherwise, You will not be able to Use Our site.
 </center>
@@ -812,32 +823,75 @@ if($auth == 0){ ?>
 </div>
 
 <? }else{ ?>
-<? if($a ==0){ //Dashboard ?> 
+<? if($a ==0){ //Dashboard 
+
+$result = $conn->query("SELECT `current_power`, `limit_power` FROM `users` WHERE `user`='$name'");
+foreach($result as $x){
+	$powernow = $x['current_power'];
+	$powerlimit = $x['limit_power'];
+	if($powernow == 0){
+		$powernow1 = 'Updating... (can take 5 minutes)';
+	}
+}
+?> 
+
+
+<!-- dashboard menu -->
 <div class="content">
-<div class="col-md-3"></div>
-<center>
-<div class="col-md-6">
-<div class="card">
-<div class="content">
-<h3>Welcome <? echo $name; ?>,</h3>
+	<div class="col-md-3"></div>
+	<center>
+		<div class="col-md-6">
+			<div class="content">
+				<div class="card">
+					<div class="content">
+						<h5 style="color:red;">Leave Steemauto if you don't know about it or you can't understand. You may harm your steem account.</h5>
+						<h3>Welcome <? echo $name; ?>,</h3>
 
-<br>Please Choose One:<br>
-<a href="dash.php?i=1" class="btn btn-primary">Curation Trail</a>
-<a href="dash.php?i=2" class="btn btn-primary">Fan Base</a><br>
-<a style="margin-top:5px;" href="dash.php?i=13" class="btn btn-primary">Upvote Comments</a>
-<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Scheduled Posts</a><br>
-<a style="margin-top:5px;" href="dash.php?i=16" class="btn btn-primary">Claim Rewards</a><br><br>
-<a href="/auth" class="btn btn-danger">UnAuthorize (Leaving SteemAuto)</a>
-
-
+						<br>Please Choose One:<br>
+						<a href="dash.php?i=1" class="btn btn-primary">Curation Trail</a>
+						<a href="dash.php?i=2" class="btn btn-primary">Fan Base</a><br>
+						<a style="margin-top:5px;" href="dash.php?i=13" class="btn btn-primary">Upvote Comments</a>
+						<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Scheduled Posts</a><br>
+						<a style="margin-top:5px;" href="dash.php?i=16" class="btn btn-primary">Claim Rewards</a><br><hr>
+						<p>You can remove steemauto access from your account:</p><p>(by steemconnect)</p>
+						<a href="https://steemconnect.com/revoke/@steemauto" class="btn btn-danger">UnAuthorize (Leaving SteemAuto)</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</center>
+	<div class="col-md-3"></div>
 </div>
-</div>
-</div>
-</center>
 
-<div class="col-md-3"></div>
+<!-- settings -->
+<div class="content"  style="margin-bottom:5px; padding-bottom:5px;">
+	<div class="col-md-3"></div>
+	<div class="col-md-6">
+		<div class="content">
+			<div class="card">
+				<div class="content">
+					<center>
+						<h4 style="border-bottom:1px solid #000; padding-bottom:10px;">Settings</h4>
+					</center>
+					<strong>Upvoting status:</strong><? if($powernow<$powerlimit){echo '<span style="color:red;"> Paused</span>';}else{echo '<span style="color:green;"> Normal</span>';} ?><br>
+					<strong>Voting power:</strong><span> <? if(!$powernow){echo $powernow1; }else{echo $powernow;} ?>%</span><br>
+					<strong>Limit on voting power:</strong><span> <? echo $powerlimit; ?>% <a onclick="$('#limitpower').toggle(500)">(Click to edit)</a></span><br>
+					<form id="limitpower" style="display:none;" onsubmit="if(!confirm('Are you sure?')) return false;" method="post">
+						<label for="powerlimit">Voting power limit (%):</label>
+						<input id="powerlimit" name="powerlimit" class="form-control" type="number" min="1" max="99" step="0.01" required>
+						<input style="margin-top:5px;" type="submit" value="submit" class="btn btn-primary">
+					</form><br>
+					<p>All your upvotes will be paused if your voting power went lower than voting power limit.</p>
+					<p>Your voting power will updated every 5 minutes.</p>
+					<p>Read more about voting power in steemit FAQ.</p>
+					<p>You can check your voting power here: https://steemd.com/@<? echo $name; ?></p>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3"></div>
 </div>
-
 <? 
 }elseif($a == 1){ //Curation Trail
 	include('inc/trail.php');
@@ -858,5 +912,5 @@ if($auth == 0){ ?>
 
 }
 
-require('footer.php');
+require('fo_oter.php');
 ?>
