@@ -74,7 +74,22 @@ setInterval(function(){
 	},30000);
 },100000);
 
-
+// Check voting power limit
+function checkpowerlimit(voter,author,permlink,weight){
+	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+		for(i in results){
+			var powernow = results[i].current_power;
+			var powerlimit = results[i].limit_power;
+			if(powernow > powerlimit){
+				upvote(voter,author,permlink,weight);
+			}else{
+				console.log('power is under limit user '+voter);
+			}
+		}
+	});
+	
+	return 1;
+}
 // Upvote function - included 0 seconds delay!
 var delay = 0;
 function upvote(voter,author,permlink,weight){
@@ -128,7 +143,7 @@ function commentupvote(userr,commenter,permlink,parentpermlink){
 													console.log('comment to delay');
 												}else{
 													console.log('comment to upvote');
-													upvote(userr,commenter,permlink,weight);
+													checkpowerlimit(userr,commenter,permlink,weight);
 													con.query('INSERT INTO `upvotedcomments`(`user`, `permlink`,`time`) VALUES ("'+commenter+'","'+parentpermlink+'","'+now+'")', function (error, results, fields) {
 													});
 													con.query('UPDATE `commentupvote` SET `todayvote`=`todayvote`+1 WHERE `user` = "'+userr+'" AND `commenter`="'+commenter+'"', function (error, results, fields) {
