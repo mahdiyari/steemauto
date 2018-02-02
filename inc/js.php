@@ -11,7 +11,7 @@ function follow(user){
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
-					message: "Successfully Followed by 100% upvote weight! you can access this setting after reloading page."
+					message: "Successfully Followed by 50% upvote weight! you can access this setting after reloading page."
 				},{
 					type: 'success',
 					timer: 6000
@@ -107,19 +107,22 @@ function showset(i){
 function settings(user){
 	$('.btn').attr('disabled','true');
 	var minute = document.getElementById('aftermin'+user).value;
+	var votingway;
+	var radios = document.getElementsByName('votingway'+user);
+	for (var i = 0, length = radios.length; i < length; i++){
+		if (radios[i].checked){
+			votingway = radios[i].value;
+			break;
+		}
+	}
 	var weight = document.getElementById('weight'+user).value;
 	if(minute == '' || minute == null){
 		minute = 0;
 	}
 	if(weight == '' || weight == null){
-		weight = 100;
+		weight = 50;
 	}
-	var fcurator;
-	if(document.getElementById('fcurator'+user).checked){
-		  fcurator = 1;
-	  }else{
-		   fcurator = 0;
-	  } 
+
 	var enable;
 	if(document.getElementById('enable'+user).checked){
 		enable = 1;
@@ -148,12 +151,11 @@ function settings(user){
 				});
 				$('.btn').removeAttr('disabled');
 			}
-			
 		}
 	};
 	xmlhttp.open("POST", "dash.php?i=5", true);
 	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&fcurator="+fcurator+"&enable="+enable);
+	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&votingway="+votingway+"&enable="+enable);
 	
 	return 1;
 }
@@ -507,6 +509,7 @@ function removeuserfromlist(user){
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+
 			if(this.responseText == 1){
 				$.notify({
 					icon: 'pe-7s-check',
@@ -561,9 +564,11 @@ function commentupvotesettings(user){
 	}else{
 		enable = 0;
 	}
+
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
+
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
@@ -663,5 +668,6 @@ function disableclaimreward(user){
 	
 	return 1;
 }
+
 
 </script>
