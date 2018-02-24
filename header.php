@@ -90,13 +90,13 @@ if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
 		<li <? if($active ==3){echo 'class="active"';} ?>>
 			<a href="dash.php?i=2">
 				<i class="pe-7s-like"></i>
-				<p>Fan Base</p>
+				<p>Fanbase</p>
 			</a>
 		</li>
 		<li <? if($active ==4){echo 'class="active"';} ?>>
 			<a href="dash.php?i=11">
 				<i class="pe-7s-date"></i>
-				<p>Scheduled Posts</p>
+				<p>Schedule Posts</p>
 			</a>
 		</li>
 		<li <? if($active ==6){echo 'class="active"';} ?>>
