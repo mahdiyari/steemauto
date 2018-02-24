@@ -13,7 +13,7 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 				<div class="card">
 					<div class="content">
 						<h3>Welcome <? echo $name; ?>,</h3><br>
-						Here is the List of Enabled users who followed <span style="color:red;"><? if($i == 1){echo 'Trail';}else{echo 'Fan';} ?></span>: @<? echo $followed; ?>
+						Here is a list of the SteemAuto users who are part of @<? echo $followed; ?>'s <span style="color:red;"><? if($i == 1){echo 'Curation Trail';}else{echo 'Fanbase';} ?></span>.
 					</div>
 				</div>
 				</div>
