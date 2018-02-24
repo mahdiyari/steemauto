@@ -7,7 +7,7 @@
 	<div class="content">
 	<h3>Welcome <? echo $name; ?>,</h3><br>
 
-	Here you can see a List of Popular Authors and upvote them.<br>
+	Here you can see a list of the most popular authors and upvote them.<br>
 	Follow someone to auto upvote that user's posts.
 	<form style="display:;" id="become" onsubmit="follow2(); return false;">
 	<label>Username:</label>
