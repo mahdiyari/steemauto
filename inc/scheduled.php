@@ -6,12 +6,12 @@
 	<div class="card">
 	<div class="content">
 	<h3>Welcome <? echo $name; ?>,</h3><br>
-	Here you can add a Post to published in the future.
+	This page is where you can schedule a post to published in the future.
 	
 	<form style="display:;" id="post" onsubmit="post(); return false;">
 	<label for="title">Title:</label>
 	<input id="title" placeholder="Post Title" name="title" type="text" class="form-control" required>
-	<label for="content">Content: (You can Write in Steemit.com and Copy Markdown or Raw Html Here.)</label>
+	<label for="content">Content: (You can write your post on Steemit.com and copy the markdown or raw HTML Here.)</label>
 	<textarea id="content" placeholder="Post Content" name="content" type="text" class="form-control" required></textarea>
 	<label for="tags">Tags:</label>
 	<input id="tags" placeholder="tag1 tag2 tag3 tag4 tag5" name="tags" type="text" class="form-control" required>
