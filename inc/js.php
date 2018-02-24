@@ -11,7 +11,7 @@ function follow(user){
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
-					message: "Successfully Followed by 50% upvote weight! you can access this setting after reloading page."
+					message: "Successfully followed with 50% upvote weight! You can access this setting after reloading the page."
 				},{
 					type: 'success',
 					timer: 6000
@@ -210,7 +210,7 @@ function follow1(user){
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
-					message: "Successfully Followed by 100% upvote weight! you can access this setting after reloading page."
+					message: "Successfully followed with 100% upvote weight! You can access this setting after reloading the page."
 				},{
 					type: 'success',
 					timer: 6000
@@ -295,7 +295,7 @@ function follow2(){
 			if(this.responseText == 1){	
 				$.notify({
 					icon: 'pe-7s-check',
-					message: "Successfully Followed by 100% upvote weight! you can access this setting after reloading page."
+					message: "Successfully followed with 100% upvote weight! You can access this setting after reloading the page."
 				},{
 					type: 'success',
 					timer: 6000
