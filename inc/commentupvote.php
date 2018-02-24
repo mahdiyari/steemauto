@@ -5,14 +5,14 @@
 			<div class="card"> <!-- 4 -->
 				<div class="content"> <!-- 5 -->
 					<h3>Welcome <? echo $name; ?>,</h3><br>
-					in this page you will be able to upvote your post's comments automatically.<br>
-					Each user will get only one upvote on each post and Maximum 2 upvotes per day(UTC), even if they write more comments.<br>
-					Remember to configure Voting weight and Wait time before upvoting.<br>
+					This page lets you upvote an user's comments automatically.<br>
+					Each user will get only one upvote on each post they comment on and a maximum of two upvotes per day (UTC), even if they write more comments.<br>
+					Remember to configure the upvote weight and wait time.<br>
 					<center><a class="btn btn-success" style="margin-top:8px;" onclick="$('#addusertolist').toggle(500);">Add a User to the List</a></center>
 					<form style="display:none;" id="addusertolist" onsubmit="addusertolist();return false;">
 					<hr>
 					<h4>Fill the form and Click on Submit:</h4>
-						<label>Commenter Steemit Username without @:</label>
+						<label>Commenter's Steemit Username without @:</label>
 						<input id="username" placeholder="For example: mahdiyari" name="username" type="text" class="form-control" required/>
 						<label>Upvote Weight (%):</label>
 						<input id="weight" placeholder="For example: 50" name="weight" type="number" step="0.01" min="0.01" max="100" class="form-control" required/>
@@ -120,4 +120,3 @@
 	}
 	?>
 </div>
-	
