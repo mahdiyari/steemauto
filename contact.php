@@ -6,7 +6,7 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 	if(!isset($_POST['g-recaptcha-response'])){
 		echo '<div id="alert" class="alert alert-danger">
 					<span class="closebtn" onclick="this.parentElement.style.display=\'none\';">&times;</span>
-					Captcha is Not Set.
+					Captcha is not set.
 					</div>
 					<script>setTimeout(function(){ document.getElementById("alert").style.opacity = "0";setTimeout(function(){document.getElementById("alert").style.display = "none"; }, 10000) }, 10000);</script>';
 	}else{
@@ -24,7 +24,7 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 		if($result->success == false){
 			echo '<div id="alert" class="alert alert-danger">
 					<span class="closebtn" onclick="this.parentElement.style.display=\'none\';">&times;</span>
-					Captcha is Wrong.
+					Captcha is wrong.
 					</div>
 					<script>setTimeout(function(){ document.getElementById("alert").style.opacity = "0";setTimeout(function(){document.getElementById("alert").style.display = "none"; }, 10000) }, 10000);</script>';
 		}else{
