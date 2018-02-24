@@ -22,7 +22,7 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 				<div class="col-md-6"> <!-- 3 -->
 					<div class="card"> <!-- 4 -->
 						<div class="content"> <!-- 5 -->
-							<h3>Searching for trail: </h3><br>
+							<h3>Searching for "<span><? echo htmlspecialchars($_GET['trail']); ?></span>": </h3><br>
 							<? 
 							$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `trailers` WHERE `user`=?)");
 							$searchedtrail = $_GET['trail'];
@@ -48,9 +48,9 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 								}
 								
 								?>
-								<strong>Trail name:</strong><span> <? echo htmlspecialchars($searchedtrail); ?></span><br>
+								<strong>Trail Name:</strong><span> <? echo htmlspecialchars($searchedtrail); ?></span><br>
 								<strong>Description:</strong><span> <? echo htmlspecialchars($row['description']); ?></span><br>
-								<strong>Followers:</strong><span> <? echo $row['followers']; ?> (<a href="/dash.php?i=15&id=1&user=<? echo htmlspecialchars($searchedtrail); ?>">Show enable followers</a>)</span><br><br>
+								<strong>Followers:</strong><span> <? echo $row['followers']; ?> (<a href="/dash.php?i=15&id=1&user=<? echo htmlspecialchars($searchedtrail); ?>">View followers</a>)</span><br><br>
 								<? if($alreadyfollowed){ ?>
 									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $row['user']; ?>');};" class="btn btn-danger" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>UNFOLLOW</button>
 									<button onclick="showset('1');" class="btn btn-primary" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>Settings</button>
@@ -112,7 +112,7 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 								
 								<?	
 							}else{ ?>
-								<p style="color:red;">Can't find. That Trail should register on steemauto and become a trail.</p>
+								<p style="color:red;">Sorry, that curation trail does not exist. If that account belongs to you, sign up on SteemAuto and create a trail.</p>
 							<?
 							}
 							?>
@@ -130,12 +130,12 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 <div class="card"> <!-- 4 -->
 <div class="content"> <!-- 5 -->
 <h3>Welcome <? echo $name; ?>,</h3><br>
-Here you can see a List of Curation Trailers and follow them.<br>
-By following a Trail, you will upvote automatically each posts that trail will upvote.<br>
-or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome();">become/edit your Trailer</a>
+Here you can view a list of existing curation trails and follow them.<br>
+Following a curation trail means that you will automatically upvote each post that the trail upvotes.<br>
+If you don't want to follow a trail you can also: <a style="margin:5px;" class="btn btn-success" onclick="showbecome();">create/edit your curation trail</a>
 <form style="display:none;" id="become" onsubmit="become(); return false;">
 <label>Short Description:(max 100 character)</label>
-<textarea id="description" placeholder="For example: I'm voting only Good posts." name="description" type="text" class="form-control" required>
+<textarea id="description" placeholder="For example: I'm voting only for good posts." name="description" type="text" class="form-control" required>
 </textarea>
 <input style="margin-top:10px;"value="Submit" type="submit" class="btn btn-primary">
 </form>
@@ -152,7 +152,7 @@ or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome(
 			<div class="content"> <!-- content -->
 
 
-				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">You Are following:</h3>
+				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">You are following:</h3>
 
 				<div style="max-height:600px; overflow:auto;" class="table-responsive-vertical shadow-z-1"> <!-- 8 -->
 
@@ -339,7 +339,7 @@ or, you can: <a style="margin:5px;" class="btn btn-success" onclick="showbecome(
 		<div class="card"> <!-- card -->
 			<div class="content"> <!-- content -->
 				<!-- -->	
-				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">Top Trailers: </h3>
+				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">Popular Curation Trails: </h3>
 
 				<? 
 				$result = $conn->query("SELECT EXISTS(SELECT * FROM `trailers` ORDER BY `trailers`.`followers` DESC LIMIT $mysqlpage,20)");
