@@ -811,12 +811,12 @@ if($auth == 0){ ?>
 <div class="card">
 <div class="content">
 <center>
-<h5 style="color:red;">Leave Steemauto if you don't know about it or you can't understand. You may harm your steem account.</h5>
+<h5 style="color:red;">Please leave Steemauto if you don't understand how it works or what it does. You could harm your Steem account if you change settings that you do not understand.</h5>
 <h3>Welcome <? echo $name; ?>,</h3>
-<br>Please add @steemauto to your Account's posting auths by One of following Apps:<br>
+<br>Please add @steemauto to your account's posting auths using one of following apps:<br>
 <br><a class="btn btn-success" href="https://steemconnect.com/authorize/@steemauto/?redirect_uri=https://steemauto.com/dash.php">SteemConnect (recommended)</a> or <a class="btn btn-success" href="https://steemauto.com/auth/">SteemAuto</a>
-<br><br>Both Are Secure.
-<br>otherwise, You will not be able to Use Our site.
+<br><br>Both are secure.
+<br>If you don't add @steemauto to your posting auths you will not be able to use our site.
 </center>
 </div>
 </div>
@@ -844,17 +844,17 @@ foreach($result as $x){
 			<div class="content">
 				<div class="card">
 					<div class="content">
-						<h5 style="color:red;">Leave Steemauto if you don't know about it or you can't understand. You may harm your steem account.</h5>
+						<h5 style="color:red;">Please leave Steemauto if you don't understand how it works or what it does. You could harm your Steem account if you change settings that you do not understand.</h5>
 						<h3>Welcome <? echo $name; ?>,</h3>
 
-						<br>Please Choose One:<br>
+						<br>Please choose an option:<br>
 						<a href="dash.php?i=1" class="btn btn-primary">Curation Trail</a>
 						<a href="dash.php?i=2" class="btn btn-primary">Fan Base</a><br>
 						<a style="margin-top:5px;" href="dash.php?i=13" class="btn btn-primary">Upvote Comments</a>
-						<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Scheduled Posts</a><br>
+						<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Schedule Posts</a><br>
 						<a style="margin-top:5px;" href="dash.php?i=16" class="btn btn-primary">Claim Rewards</a><br><hr>
-						<p>You can remove steemauto access from your account:</p><p>(by steemconnect)</p>
-						<a href="https://steemconnect.com/revoke/@steemauto" class="btn btn-danger">UnAuthorize (Leaving SteemAuto)</a>
+						<p>You can remove SteemAuto's access from your account by using SteemConnect</p>
+						<a href="https://steemconnect.com/revoke/@steemauto" class="btn btn-danger">Unauthorize (Leave SteemAuto)</a>
 					</div>
 				</div>
 			</div>
@@ -881,10 +881,10 @@ foreach($result as $x){
 						<input id="powerlimit" name="powerlimit" class="form-control" type="number" min="1" max="99" step="0.01" required>
 						<input style="margin-top:5px;" type="submit" value="submit" class="btn btn-primary">
 					</form><br>
-					<p>All your upvotes will be paused if your voting power went lower than voting power limit.</p>
+					<p>All your upvotes will be paused if your voting power is lower than the voting power limit.</p>
 					<p>Your voting power will updated every 5 minutes.</p>
-					<p>Read more about voting power in steemit FAQ.</p>
-					<p>You can check your voting power here: https://steemd.com/@<? echo $name; ?></p>
+					<p>Read more about voting power in the Steemit FAQ.</p>
+					<p>You can check your voting power here: <a href="https://steemd.com/@<? echo $name; ?>">https://steemd.com/@<? echo $name; ?></a></p>
 					
 				</div>
 			</div>
@@ -897,7 +897,7 @@ foreach($result as $x){
 	include('inc/trail.php');
 }elseif($a == 2){ //Fanbase
 	include('inc/fanbase.php');
-}elseif($a == 11){ // Scheduled Posts
+}elseif($a == 11){ // Schedule Posts
 	include('inc/scheduled.php');
 }elseif($a == 13){ // Comment upvotes
 	include('inc/commentupvote.php');

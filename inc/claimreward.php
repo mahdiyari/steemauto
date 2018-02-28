@@ -16,11 +16,11 @@ if($x == 1){
 		<div class="card">
 			<div class="content">
 				<h3>Welcome <? echo $name; ?>,</h3><br>
-				Here you can Enable or Disable claiming rewards automatically to your account balance.<br><br>
-				<strong>More info:</strong> Usually you should redeem your steemit curation and author rewards by clicking on a button in your wallet in steemit.com<br>
-				by this tool you don't need to click on that button manually! it will do that job for you automatically.<br>
-				this tool will check your account every 5 minutes and will transfer your rewards to your balance.<br>
-				and such as always, your balance is safe! (because of using posting authority)<br><br>
+				Here you can enable or disable SteemAuto from automatically claiming your rewards.<br><br>
+				<strong>More info:</strong> Usually you redeem your Steemit curation and author rewards by clicking on a button in your wallet on steemit.com<br>
+				This handy tool means you don't need to click on that button manually, since it does that job for you automatically!<br>
+				Every five minutes this tool will check your account and will transfer your pending rewards to your balance.<br>
+				This tool is safe to use because SteemAuto only has access to your posting authority. That means it can only claim your rewards and cannot access any of the funds in your wallet.<br><br>
 				<strong>Status:</strong> 
 				<? if($claimreward==0){ ?>
 				<span style="color:red;">Disabled</span>
