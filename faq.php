@@ -52,6 +52,10 @@ require_once('header.php');
 				<p>No. In other tools if you upvote any post twice with different upvote weights, the first upvote is overriden by the second upvote. 
 				In the Steemauto this problem is fixed. You can upvote any post manually before applying auto upvotes and the manual vote will not be overriden.</p>
 				
+				<h3>What is difference between 'Scale' and 'Fixed' in following trails?</h3>
+				<p>Fixed voting weight means you will upvote with exact percentage you entered.<br>
+				Scale voting weight means your voting weight will changed by trail voted weight. Let's say you followed a trail by this method with 10% then if trail upvotes any post by 50%, your upvote weight will be 5% (10% of 50%) </p>
+				
 				<h3>Any other questions?</h3>
 				<p>Ask your questions on the <a href="/contact.php" target="_blank">Contact</a> page.</p>
 				
