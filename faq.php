@@ -44,6 +44,10 @@ require_once('header.php');
 				You can also sumbit a short description and become a "trail" which other users will be able to follow. 
 				Note: For upvoting an user's authored posts, you should use Fanbase. Curation trails will not follow self upvotes.</p>
 				
+				<h3>What is the difference between 'Scale' and 'Fixed' in following curation trails?</h3>
+				<p>Fixed voting weight means you will upvote with exact percentage you entered.<br>
+				Scale voting weight means your voting weight will be changed (i.e. scaled) by the trail's voting weight. For example, if you followed a trail with this option set to 10% then if trail upvotes a post by 50%, your upvote weight will be 5% (10% of 50%) </p>
+				
 				<h3>What is a Fanbase?</h3>
 				<p>By using the 'Fanbase' section, you can automatically upvote your favorite authors immediately after they publish any post (not comments). 
 				You can configure the 'upvote weight' for each user on the 'Fanbase' page. </p>
@@ -51,10 +55,6 @@ require_once('header.php');
 				<h3>Will my upvotes be replaced if I manually upvoted a post?</h3>
 				<p>No. In other tools if you upvote any post twice with different upvote weights, the first upvote is overriden by the second upvote. 
 				In the Steemauto this problem is fixed. You can upvote any post manually before applying auto upvotes and the manual vote will not be overriden.</p>
-				
-				<h3>What is difference between 'Scale' and 'Fixed' in following trails?</h3>
-				<p>Fixed voting weight means you will upvote with exact percentage you entered.<br>
-				Scale voting weight means your voting weight will changed by trail voted weight. Let's say you followed a trail by this method with 10% then if trail upvotes any post by 50%, your upvote weight will be 5% (10% of 50%) </p>
 				
 				<h3>Any other questions?</h3>
 				<p>Ask your questions on the <a href="/contact.php" target="_blank">Contact</a> page.</p>
