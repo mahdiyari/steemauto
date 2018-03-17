@@ -60,6 +60,7 @@ require_once('header.php');
 				<p>Ask your questions on the <a href="/contact.php" target="_blank">Contact</a> page.</p>
 				
 				<h3>Useful articles:</h3>
+				<p>Note: steemauto now uses steemconnect to login and there's no need to register anymore, you can skip that part in these guides and tutorials.</p>
 				<p><a href="https://steemit.com/guide/@scrooger/steemauto-full-guide-and-how-to-register" target="_blank">STEEMAUTO - Full guide and how to REGISTER</a> by @scrooger</p>
 
 			</div>
