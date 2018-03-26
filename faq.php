@@ -24,7 +24,7 @@ require_once('header.php');
 				
 				<h3>What is posting authority?</h3>
 				<p>In the Steem blockchain, each account have different keys that let you access different parts of the account. One of these keys is the 'posting key' which can be used to post, comment, upvote, follow, and etc. When using a posting key you can't access an account's balances, so your funds are perfectly safe.</p>
-				
+
 				<h3>Is SteemAuto secure?</h3>
 				<p>SteemAuto is an open source app. You can view all of its source code at its <a href="https://github.com/mahdiyari/steemauto" target="_blank">GitHub repository</a>.</p>
 				
@@ -43,11 +43,11 @@ require_once('header.php');
 				You can configure the 'upvote weight' for each user on the 'Curation Trail' page. 
 				You can also sumbit a short description and become a "trail" which other users will be able to follow. 
 				Note: For upvoting an user's authored posts, you should use Fanbase. Curation trails will not follow self upvotes.</p>
-				
+
 				<h3>What is the difference between 'Scale' and 'Fixed' options when following curation trails?</h3>
 				<p>Fixed voting weight means you will upvote with exact percentage you entered.<br>
 				Scaled voting weight means your voting weight will be changed (i.e. scaled) by the trail's voting weight. For example, if you followed a trail with this option set to 10% then if that trail upvotes a post by 50%, your upvote weight will be 5% (10% of 50%) </p>
-				
+
 				<h3>What is a Fanbase?</h3>
 				<p>By using the 'Fanbase' section, you can automatically upvote your favorite authors immediately after they publish any post (not comments). 
 				You can configure the 'upvote weight' for each user on the 'Fanbase' page. </p>
@@ -56,12 +56,14 @@ require_once('header.php');
 				<p>No. In other tools if you upvote any post twice with different upvote weights, the first upvote is overriden by the second upvote. 
 				In the Steemauto this problem is fixed. You can upvote any post manually before applying auto upvotes and the manual vote will not be overriden.</p>
 				
-				<h3>Any other questions?</h3>
-				<p>Ask your questions on the <a href="/contact.php" target="_blank">Contact</a> page.</p>
-				
+				<h3>Any other question?</h3>
+				<p>Ask your questions from the <a href="/contact.php" target="_blank">Contact</a> page.</p>
+
 				<h3>Useful articles:</h3>
 				<p>Note: steemauto now uses steemconnect to login and there's no need to register anymore, you can skip that part in these guides and tutorials.</p>
 				<p><a href="https://steemit.com/guide/@scrooger/steemauto-full-guide-and-how-to-register" target="_blank">STEEMAUTO - Full guide and how to REGISTER</a> by @scrooger</p>
+				<p><a href="https://steemit.com/utopian-io/@vidafitnessfeliz/video-tutorial-que-es-steemauto-y-por-que-usarlo" target="_blank">Spanish video tutorial</a> by @vidafitnessfeliz</p>
+				<p><a href="https://steemit.com/steemauto/@ilyastarar/learn-how-to-use-steemauto-to-leverage-automation-for-upvoting-authors-and-earning-maximum-curation-rewards" target="_blank">Learn how to use Steemauto</a> by @ilyastarar</p>
 
 			</div>
 		</div>
