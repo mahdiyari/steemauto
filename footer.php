@@ -4,6 +4,8 @@
 					<center>
 					<p class="copyright">
 						<a href="https://github.com/myary/steemauto">Steemauto</a>, Made by Steem Witness <a target="_blank" href="https://steemit.com/@mahdiyari">@mahdiyari</a> with Love <i style="color:red;"class="pe-7s-like"></i> for Steem Users. |<a href="https://discord.gg/qhKDfEp"> Discord Channel</a>
+						<br>
+						<a href="/privacy-policy.php">Privacy Policy</a> | <a href="/about-us.php">About us</a>
 					</p>
 					</center>
 				</div>
