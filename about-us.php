@@ -27,6 +27,8 @@ require_once('header.php');
       Since this authority can only be used to upvote posts, post articles, follow your favorite posters or comment on other posts without any access to your wallet balance, your Steemit funds are perfectly safe and secure… all the time.
       <br>
       Join SteemAuto today and enjoy the time-saving, cash-generating benefits of managing all your daily Steemit related tasks automatically from one place.
+      <br><br>
+      <sub>this page contributed by @order4adwriter</sub>
     </div>
   </div>
 </div>
