@@ -63,7 +63,7 @@ require_once('header.php');
 
       If you have any questions about this Privacy Policy, please contact us on Discord - https://discord.gg/kfyQcWJ or contact.
       <br><br>
-      <sub>this page contributed by @order4adwriter</sub>
+      <sub>this page contributed by @pope1995</sub>
     </div>
   </div>
 </div>
