@@ -62,6 +62,8 @@ require_once('header.php');
       <h3>CONTACTING US:</h3>
 
       If you have any questions about this Privacy Policy, please contact us on Discord - https://discord.gg/kfyQcWJ or contact.
+      <br><br>
+      <sub>this page contributed by @order4adwriter</sub>
     </div>
   </div>
 </div>
