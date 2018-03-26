@@ -1,5 +1,5 @@
 <?php
-require_once('he_ad.php');
+require_once('header.php');
 ?>
 <div class="content">
   <div class="card">
@@ -31,5 +31,5 @@ require_once('he_ad.php');
   </div>
 </div>
 <?php
-require_once('fo_oter.php');
+require_once('footer.php');
 ?>
