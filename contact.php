@@ -1,6 +1,7 @@
 <?php
-require_once('database.php');
-require_once('header.php');
+require_once('inc/conf/db.php');
+require_once('inc/conf/recaptcha.php');
+require_once('inc/temp/head.php');
 
 if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) && isset($_POST['message'])){
 	if(!isset($_POST['g-recaptcha-response'])){
@@ -11,7 +12,6 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 					<script>setTimeout(function(){ document.getElementById("alert").style.opacity = "0";setTimeout(function(){document.getElementById("alert").style.display = "none"; }, 10000) }, 10000);</script>';
 	}else{
 		$res = $_POST['g-recaptcha-response'];
-		$secret= 'Captcha Secret Key';
 		$ip = $_SERVER['REMOTE_ADDR'];
 		$url = "https://www.google.com/recaptcha/api/siteverify";
 		$dat = "secret=$secret&response=$res&remoteip=$ip";
@@ -32,7 +32,7 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 			$email = urlencode($_POST['email']);
 			$subject = urlencode($_POST['subject']);
 			$message = urlencode($_POST['message']);
-			$url="http://Email Server/?name=$fname&email=$email&subject=$subject&message=$message";
+			$url="$mailurl?name=$fname&email=$email&subject=$subject&message=$message";
 			$file = file_get_contents($url);
 			if($file == 1){
 				?>
@@ -42,16 +42,16 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 						demo.initChartist();
 						$.notify({
 							icon: 'pe-7s-check',
-							message: "Successfully Sent!"
+							message: "Successfully sent!"
 						},{
 							type: 'success',
 							timer: 6000
 						});
-						
+
 
 					});
 				</script>
-				
+
 				<?
 			}else{
 				?>
@@ -61,16 +61,16 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 						demo.initChartist();
 						$.notify({
 							icon: 'pe-7s-alert',
-							message: "Error in sending Message!"
+							message: "Error in sending message!"
 						},{
 							type: 'danger',
 							timer: 6000
 						});
-						
+
 
 					});
-				</script>	
-				
+				</script>
+
 <?
 				}
 		}
@@ -80,10 +80,7 @@ if(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['subject']) &
 
 
 <div style="margin:1px;"><br /></div>
-
-
-
-<!-- 
+<!--
   ****************************************
   Contest Entry for Treehouse:
   "Design a Contact Form"
@@ -155,31 +152,31 @@ h4{
    -webkit-border-radius:7px;
    -moz-border-radius:7px;
 }
-#contact-form input,   
-#contact-form select,   
-#contact-form textarea,   
-#contact-form label { 
-   font-size: 15px;  
+#contact-form input,
+#contact-form select,
+#contact-form textarea,
+#contact-form label {
+   font-size: 15px;
    margin-bottom: 2px;
    font-family: Arial, san-serif;
-} 
-#contact-form input,   
-#contact-form select,   
-#contact-form textarea { 
+}
+#contact-form input,
+#contact-form select,
+#contact-form textarea {
    width:100%;
    background: #555;
-   border: 0; 
-   -moz-border-radius: 4px;  
-   -webkit-border-radius: 4px;  
+   border: 0;
+   -moz-border-radius: 4px;
+   -webkit-border-radius: 4px;
    border-radius: 4px;
-   margin-bottom: 25px;  
-   padding: 5px;  
-}  
-#contact-form input:focus,   
-#contact-form select:focus,   
-#contact-form textarea:focus {  
-   background-color: #555; 
-}  
+   margin-bottom: 25px;
+   padding: 5px;
+}
+#contact-form input:focus,
+#contact-form select:focus,
+#contact-form textarea:focus {
+   background-color: #555;
+}
 #contact-form textarea {
    width:100%;
    height: 150px;
@@ -208,22 +205,22 @@ h4{
 #contact-form button[type="submit"]:active {
    box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);
 }
-input:required, textarea:required {  
+input:required, textarea:required {
    box-shadow: none;
-   -moz-box-shadow: none;  
-   -webkit-box-shadow: none;  
-   -o-box-shadow: none;  
-} 
-#contact-form .required {  
-   font-weight:bold;  
-   color: #fff;      
+   -moz-box-shadow: none;
+   -webkit-box-shadow: none;
+   -o-box-shadow: none;
+}
+#contact-form .required {
+   font-weight:bold;
+   color: #fff;
 }
 
 /* Hide success/failure message
    (especially since the php is missing) */
 #failure, #success {
-   color: #6EA070; 
-   display:none;  
+   color: #6EA070;
+   display:none;
 }
 
 /* Make form look nice on smaller screens */
@@ -242,43 +239,43 @@ input:required, textarea:required {
 <div class="container">
 <div id="contact-form">
 	<div>
-		<h1>Nice to Meet You!</h1> 
-		<h4>Have a question or just want to get in touch? Let's chat.</h4> 
+		<h1>Nice to Meet You!</h1>
+		<h4>Have a question or just want to get in touch? Let's chat.</h4>
 	</div>
-		<p id="failure">Oopsie...message not sent.</p>  
+		<p id="failure">Oopsie...message not sent.</p>
 		<p id="success">Your message was sent successfully. Thank you!</p>
 
 		   <form onsubmit="if(!grecaptcha.getResponse()){alert('Please Submit Captcha.'); return false;}" method="post">
 			<div>
 		      <label for="name">
-		      	<span class="required">Name: *</span> 
+		      	<span class="required">Name: *</span>
 		      	<input type="text" id="name" name="name" value="" placeholder="Your Name" required="required" tabindex="1" />
-		      </label> 
+		      </label>
 			</div>
 			<div>
 		      <label for="email">
 		      	<span class="required">Email: *</span>
 		      	<input type="email" id="email" name="email" value="" placeholder="Your Email" tabindex="2" required="required" />
-		      </label>  
+		      </label>
 			</div>
-			<div>		          
+			<div>
 		      <label for="subject">
 			  <span class="required">Subject: *</span>
 			      <input type="text" id="subject" name="subject" value="" placeholder="Subject" required="required" tabindex="3" />
 		      </label>
 			</div>
-			<div>		          
+			<div>
 		      <label for="message">
-		      	<span class="required">Message: *</span> 
-		      	<textarea id="message" name="message" placeholder="Please write your message here." tabindex="4" required="required"></textarea> 
-		      </label>  
+		      	<span class="required">Message: *</span>
+		      	<textarea id="message" name="message" placeholder="Please write your message here." tabindex="4" required="required"></textarea>
+		      </label>
 			</div>
 			<div>
 			<div style="margin-bottom:15px;margin-top:-15px;" class="g-recaptcha" data-sitekey="6LdgyjQUAAAAAOaxn89zmS4RmVgCrbJhkYa7THgV"></div>
 			<script src="https://www.google.com/recaptcha/api.js"></script>
-			</div>		           
-			<div>		           
-		      <button name="submit" type="submit" id="submit" >SEND</button> 
+			</div>
+			<div>
+		      <button name="submit" type="submit" id="submit" >SEND</button>
 			</div>
 		   </form>
 
@@ -290,5 +287,5 @@ input:required, textarea:required {
 	<?
 
 
-include_once('footer.php');
+include_once('inc/temp/footer.php');
 ?>

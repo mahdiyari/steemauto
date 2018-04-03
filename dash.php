@@ -1,5 +1,8 @@
 <?php
-require_once('func.php');
+
+require_once('inc/dep/func.php');
+require_once('inc/conf/db.php');
+require_once('inc/dep/login_register.php');
 date_default_timezone_set('UTC');
 $a = 0;
 $active = 1;
@@ -51,85 +54,49 @@ if(isset($_GET['i'])){
 }
 if($a == 3 && isset($_POST['user'])){
 	$userr =$_POST['user'];
-	
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){ // Following a Trailer
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		if($userr == $name){
+			echo 0;exit();
 		}
-		if($log == 1){
-			if($userr == $name){
-				echo 0;exit();
-			}
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 0){
-				$result = $conn->query("INSERT INTO `followers`(`trailer`, `follower`, `weight`) VALUES ('$userr','$name','5000')");
-				$result = $conn->query("UPDATE `trailers` SET `followers`=`followers`+1 WHERE `user`='$userr'");
-				echo 1;
-				exit();
-			}else{
-				echo 2;
-				exit();
-			}
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 0){
+			$result = $conn->query("INSERT INTO `followers`(`trailer`, `follower`, `weight`) VALUES ('$userr','$name','5000')");
+			$result = $conn->query("UPDATE `trailers` SET `followers`=`followers`+1 WHERE `user`='$userr'");
+			echo 1;
+			exit();
 		}else{
-			echo 0;
+			echo 2;
 			exit();
 		}
 	}else{
+		echo 0;
 		exit();
 	}
 }
 if($a == 4 && isset($_POST['user'])){ // Unfollowing a Trailer
 	$userr =$_POST['user'];
-	
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		if($userr == $name){
+			echo 0;exit();
 		}
-		if($log == 1){
-			if($userr == $name){
-				echo 0;exit();
-			}
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 1){
-				$result = $conn->query("DELETE FROM `followers` WHERE `followers`.`trailer`='$userr' AND `followers`.`follower`='$name'");
-				$result = $conn->query("UPDATE `trailers` SET `followers`=`followers`-1 WHERE `user`='$userr'");
-				echo 1;
-				exit();
-			}else{
-				echo 2;
-				exit();
-			}
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 1){
+			$result = $conn->query("DELETE FROM `followers` WHERE `followers`.`trailer`='$userr' AND `followers`.`follower`='$name'");
+			$result = $conn->query("UPDATE `trailers` SET `followers`=`followers`-1 WHERE `user`='$userr'");
+			echo 1;
+			exit();
 		}else{
-			echo 0;
+			echo 2;
 			exit();
 		}
 	}else{
+		echo 0;
 		exit();
 	}
 }
@@ -158,231 +125,141 @@ if($a == 5 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['
 		exit();
 	}
 	$weight = 100*$weight;
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
+		foreach($result as $c){
+			foreach($c as $c){}
 		}
-		if($log == 1){
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$userr' AND `follower`='$name')");
+		if($c == 1){
+			$result = $conn->query("UPDATE `followers` SET `weight`='$weight' , `aftermin`='$minute',`votingway`='$votingway',`enable`='$enable' WHERE `trailer`='$userr' AND `follower`='$name'");
+			echo 1;
+			exit();
+		}else{
+			echo 2;
+			exit();
+		}
+	}else{
+		echo 0;
+		exit();
+	}
+}
+if($a == 6 && isset($_POST['desc'])){ // Becoming a Trailer
+	$desc =$_POST['desc'];
+	if($log == 1){
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `trailers` WHERE `user`='$name')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 1){
+			$stmt = $conn->prepare("UPDATE `trailers` SET `description`=? WHERE `user`='$name'");
+			$stmt->bind_param('s', $desc);
+			$stmt->execute();
+			echo 1;
+			exit();
+		}else{
+			$stmt = $conn->prepare("INSERT INTO `trailers`(`user`, `description`) VALUES (?,?)");
+			$stmt->bind_param('ss', $name,$desc);
+			$stmt->execute();
+			echo 1;
+			exit();
+		}
+	}else{
+		echo 0;
+		exit();
+	}
+}
+if($a == 7 && isset($_POST['user'])){ // Following a Fan
+	$userr =$_POST['user'];
+	if($log == 1){
+		if($userr == $name){
+			echo 0;exit();
+		}
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 1){
+			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
 			foreach($result as $c){
 				foreach($c as $c){}
 			}
 			if($c == 1){
-				$result = $conn->query("UPDATE `followers` SET `weight`='$weight' , `aftermin`='$minute',`votingway`='$votingway',`enable`='$enable' WHERE `trailer`='$userr' AND `follower`='$name'");
+				echo 2; exit();
+			}else{
+				$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
+				$stmt->bind_param('ss', $userr ,$name);
+				$stmt->execute();
+				$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
+				echo 1;
+				exit();
+			}
+
+		}else{
+			$stmt = $conn->prepare("INSERT INTO `fans`(`fan`) VALUES (?)");
+			$stmt->bind_param('s', $userr);
+			$stmt->execute();
+			$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
+			$stmt->bind_param('ss', $userr,$name);
+			$stmt->execute();
+			$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
+			echo 1;
+			exit();
+		}
+	}else{echo 0;exit();}
+}
+if($a == 8 && isset($_POST['user'])){ // Unfollowing a Fan
+	$userr =$_POST['user'];
+	if($log == 1){
+		if($userr == $name){
+			echo 0;exit();
+		}
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 1){
+			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
+			foreach($result as $c){
+				foreach($c as $c){}
+			}
+			if($c == 1){
+				$result = $conn->query("UPDATE `fans` SET `followers`=`followers`-1 WHERE `fan`='$userr'");
+				$result = $conn->query("DELETE FROM `fanbase` WHERE `fanbase`.`fan`='$userr' AND `fanbase`.`follower`='$name'");
 				echo 1;
 				exit();
 			}else{
 				echo 2;
 				exit();
 			}
+
 		}else{
-			echo 0;
+			echo 3;
 			exit();
 		}
-	}else{
-		echo 3;
-		exit();
-	}
-}
-if($a == 6 && isset($_POST['desc'])){ // Becoming a Trailer
-	$desc =$_POST['desc'];
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		if($log == 1){
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `trailers` WHERE `user`='$name')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 1){
-				$stmt = $conn->prepare("UPDATE `trailers` SET `description`=? WHERE `user`='$name'");
-				$stmt->bind_param('s', $desc);
-				$stmt->execute();
-				echo 1;
-				exit();
-			}else{
-				$stmt = $conn->prepare("INSERT INTO `trailers`(`user`, `description`) VALUES (?,?)");
-				$stmt->bind_param('ss', $name,$desc);
-				$stmt->execute();
-				echo 1;
-				exit();
-			}
-		}else{
-			echo 0;
-			exit();
-		}
-	}else{echo 3;exit();}
-}
-if($a == 7 && isset($_POST['user'])){ // Following a Fan
-	$userr =$_POST['user'];
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		if($log == 1){
-			if($userr == $name){
-				echo 0;exit();
-			}
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 1){
-				$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
-				foreach($result as $c){
-					foreach($c as $c){}
-				}
-				if($c == 1){
-					echo 2; exit();
-				}else{
-					$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
-					$stmt->bind_param('ss', $userr ,$name);
-					$stmt->execute();
-					$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
-					echo 1;
-					exit();
-				}
-				
-			}else{
-				$stmt = $conn->prepare("INSERT INTO `fans`(`fan`) VALUES (?)");
-				$stmt->bind_param('s', $userr);
-				$stmt->execute();
-				$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
-				$stmt->bind_param('ss', $userr,$name);
-				$stmt->execute();
-				$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
-				echo 1;
-				exit();
-			}
-		}else{echo 0;exit();}
-	}else{echo 3;exit();}
-}
-if($a == 8 && isset($_POST['user'])){ // Unfollowing a Fan
-	$userr =$_POST['user'];
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		if($log == 1){
-			if($userr == $name){
-				echo 0;exit();
-			}
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 1){
-				$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
-				foreach($result as $c){
-					foreach($c as $c){}
-				}
-				if($c == 1){
-					$result = $conn->query("UPDATE `fans` SET `followers`=`followers`-1 WHERE `fan`='$userr'");
-					$result = $conn->query("DELETE FROM `fanbase` WHERE `fanbase`.`fan`='$userr' AND `fanbase`.`follower`='$name'");
-					echo 1;
-					exit();
-				}else{
-					echo 2;
-					exit();
-				}
-				
-			}else{
-				echo 3;
-				exit();
-			}
-		}else{echo 0;exit();}
-	}else{echo 4;exit();}
+	}else{echo 0;exit();}
 }
 if($a == 9 && isset($_POST['user'])){ // Following a Fan by submitting form
 	$userr =$_POST['user'];
 	if(!call('get_accounts','["'.$userr.'"]')){
 		echo 4; exit();
 	}
-	
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		if($userr == $name){
+			echo 0;exit();
 		}
-		if($log == 1){
-			if($userr == $name){
-				echo 0;exit();
-			}
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`='$userr')");
+		foreach($result as $c){
+			foreach($c as $c){}
+		}
+		if($c == 1){
+			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
 			foreach($result as $c){
 				foreach($c as $c){}
 			}
 			if($c == 1){
-				$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
-				foreach($result as $c){
-					foreach($c as $c){}
-				}
-				if($c == 1){
-					echo 2; exit();
-				}else{
-					$userr =$_POST['user'];
-					$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
-					$stmt->bind_param('ss', $userr,$name);
-					$stmt->execute();
-					$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
-					echo 1;
-					exit();
-				}
-				
+				echo 2; exit();
 			}else{
-				$stmt = $conn->prepare("INSERT INTO `fans`(`fan`) VALUES (?)");
-				$stmt->bind_param('s', $userr);
-				$stmt->execute();
+				$userr =$_POST['user'];
 				$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
 				$stmt->bind_param('ss', $userr,$name);
 				$stmt->execute();
@@ -390,8 +267,19 @@ if($a == 9 && isset($_POST['user'])){ // Following a Fan by submitting form
 				echo 1;
 				exit();
 			}
-		}else{echo 0;exit();}
-	}else{echo 3;exit();}
+
+		}else{
+			$stmt = $conn->prepare("INSERT INTO `fans`(`fan`) VALUES (?)");
+			$stmt->bind_param('s', $userr);
+			$stmt->execute();
+			$stmt = $conn->prepare("INSERT INTO `fanbase`(`fan`, `follower`,`weight`) VALUES (?,?,'10000')");
+			$stmt->bind_param('ss', $userr,$name);
+			$stmt->execute();
+			$result = $conn->query("UPDATE `fans` SET `followers`=`followers`+1 WHERE `fan`='$userr'");
+			echo 1;
+			exit();
+		}
+	}else{echo 0;exit();}
 }
 if($a == 10 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable'])){ // Settings For a Fan.
 	$userr =$_POST['user'];
@@ -412,97 +300,85 @@ if($a == 10 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 		exit();
 	}
 	$weight = 100*$weight;
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
+		foreach($result as $c){
+			foreach($c as $c){}
 		}
-		if($log == 1){
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$userr' AND `follower`='$name')");
-			foreach($result as $c){
-				foreach($c as $c){}
-			}
-			if($c == 1){
-				$result = $conn->query("UPDATE `fanbase` SET `weight`='$weight' , `aftermin`='$minute',`enable`='$enable' WHERE `fan`='$userr' AND `follower`='$name'");
-				echo 1;
-				exit();
-			}else{
-				echo 2;
-				exit();
-			}
+		if($c == 1){
+			$result = $conn->query("UPDATE `fanbase` SET `weight`='$weight' , `aftermin`='$minute',`enable`='$enable' WHERE `fan`='$userr' AND `follower`='$name'");
+			echo 1;
+			exit();
 		}else{
+			echo 2;
+			exit();
+		}
+	}else{
+		echo 0;
+		exit();
+	}
+}
+if($a == 11 && isset($_POST['date']) && is_numeric($_POST['date']) && isset($_POST['title']) && isset($_POST['content']) && isset($_POST['tags']) && isset($_POST['rewardstype']) && isset($_POST['upvotepost'])){ // Submit Post for Schedule
+	$date =$_POST['date'];
+	if($date < 1 || $date >168){
+		echo 0;
+		exit();
+	}
+	$title =$_POST['title'];
+	$content =$_POST['content'];
+	$rewardstype = $_POST['rewardstype'];
+	if(is_numeric($rewardstype)){
+		if($rewardstype != 0 && $rewardstype != 1 && $rewardstype !=2){
 			echo 0;
 			exit();
 		}
 	}else{
-		echo 3;
+		echo 0;
 		exit();
 	}
-}
-if($a == 11 && isset($_POST['date']) && is_numeric($_POST['date']) && isset($_POST['title']) && isset($_POST['content']) && isset($_POST['tags'])){ // Submit Post for Schedule
-	$date =$_POST['date'];
-	$title =$_POST['title'];
-	$content =$_POST['content'];
+	$upvotepost = $_POST['upvotepost'];
+	if(is_numeric($upvotepost)){
+		if($upvotepost != 0 && $upvotepost != 1){
+			echo 0;
+			exit();
+		}
+	}else{
+		echo 0;
+		exit();
+	}
 	$tags =$_POST['tags'];
 	if($date <1 || $date >100){
 		echo 0;
 		exit();
 	}
-	$tagss = explode(" ", $tags); //converting tags to array
-	if(sizeof($tagss) >5){
+	if(sizeof($tags) >5){
 		echo 2;
 		exit();
 	}
-	$main = $tagss[0];
+	$main = $tags[0];
+
 	function clean($string) {
 		$string = strtolower($string);
 		$string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
-		$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+		$string = preg_replace('/[^a-z0-9\-]/', '', $string); // Removes special chars.
 		return preg_replace('/-+/', '-', $string); // Replaces multiple hyphens with single one.
 	}
 
-	$tag = implode('","',$tagss);
+	$tag = implode('","',$tags);
 	$tags = "[\"$tag\"]"; //converting tags to array inside string
 	$json = '{"tags":'.$tags.',"links":[],"app":"steemauto/0.01","format":"markdown"}';
 	$perm = clean($title);
 	$time= strtotime('now');
 	$permlink = $perm.'-'.$time;
 	$date = $time + $date*3600;
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
+	if($log == 1){
+		$stmt = $conn->prepare("INSERT INTO `posts`(`user`, `title`, `content`, `date`,`maintag`, `json`, `permlink`, `upvote`, `rewards`) VALUES (?,?,?,?,?,?,?,?,?)");
+		$stmt->bind_param('sssssssss', $name,$title,$content,$date,$main,$json,$permlink,$upvotepost,$rewardstype);
 		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		if($log == 1){
-			$stmt = $conn->prepare("INSERT INTO `posts`(`user`, `title`, `content`, `date`,`maintag`, `json`, `permlink`) VALUES (?,?,?,?,?,?,?)");
-			$stmt->bind_param('sssssss', $name,$title,$content,$date,$main,$json,$permlink);
-			$stmt->execute();
-			echo 1;
-			exit();
-		}else{
-			echo 0;
-			exit();
-		}
+		echo 1;
+		exit();
 	}else{
-		echo 3;
+		echo 0;
 		exit();
 	}
 }
@@ -512,39 +388,21 @@ if($a == 12 && isset($_POST['id']) && is_numeric($_POST['id'])){ // Delete Post 
 		echo 0;
 		exit();
 	}
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
+	if($log == 1){
+		$result = $conn->query("SELECT EXISTS(SELECT * FROM `posts` WHERE `user`='$name' AND `id`='$id')");
+		foreach($result as $x){
+			foreach($x as $x){}
 		}
-		if($log == 1){
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `posts` WHERE `user`='$name' AND `id`='$id')");
-			foreach($result as $x){
-				foreach($x as $x){}
-			}
-			if($x == 1){
-				$result = $conn->query("DELETE FROM `posts` WHERE `posts`.`id` = '$id'");
-				echo 1;
-				exit();
-			}else{
-				echo 0;
-				exit();
-			}
+		if($x == 1){
+			$result = $conn->query("DELETE FROM `posts` WHERE `posts`.`id` = '$id'");
+			echo 1;
+			exit();
 		}else{
 			echo 0;
 			exit();
 		}
 	}else{
-		echo 3;
+		echo 0;
 		exit();
 	}
 }
@@ -553,7 +411,7 @@ if($a == 13 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 	$userr =$_POST['user'];
 	$weight =$_POST['weight']*100;
 	$minute =$_POST['minute'];
-	
+
 	if(!call('get_accounts','["'.$userr.'"]')){
 		echo 4; exit();
 	}
@@ -561,45 +419,26 @@ if($a == 13 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 		echo 0;
 		exit();
 	}
-	
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
+	if($log == 1){
+		if($userr == $name){echo 0; exit();}
+		$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `commentupvote` WHERE `user`=? AND `commenter`=?)");
+		$stmt->bind_param('ss', $name,$userr);
 		$stmt->execute();
 		$result = $stmt->get_result();
 		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
+		foreach($row as $x){}
+		if($x == 1){
+			echo 2;
+			exit();
 		}else{
-			$log = 0;
-		}
-		if($userr == $name){echo 0; exit();}
-		if($log == 1){
-			$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `commentupvote` WHERE `user`=? AND `commenter`=?)");
-			$stmt->bind_param('ss', $name,$userr);
+			$stmt = $conn->prepare("INSERT INTO `commentupvote`(`user`, `commenter`, `weight`, `aftermin`) VALUES (?,?,?,?)");
+			$stmt->bind_param('ssss', $name,$userr,$weight,$minute);
 			$stmt->execute();
-			$result = $stmt->get_result();
-			$row = $result->fetch_assoc();
-			foreach($row as $x){}
-			if($x == 1){
-				echo 2;
-				exit();
-			}else{
-				$stmt = $conn->prepare("INSERT INTO `commentupvote`(`user`, `commenter`, `weight`, `aftermin`) VALUES (?,?,?,?)");
-				$stmt->bind_param('ssss', $name,$userr,$weight,$minute);
-				$stmt->execute();
-				echo 1;
-				exit();
-			}
-		}else{
-			echo 0;
+			echo 1;
 			exit();
 		}
 	}else{
-		echo 3;
+		echo 0;
 		exit();
 	}
 }
@@ -609,23 +448,8 @@ if($a == 133 && isset($_POST['user'])){ // Removing a user from comment upvote l
 	if(!call('get_accounts','["'.$userr.'"]')){
 		echo 4; exit();
 	}
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		if($userr == $name){echo 0; exit();}
-		
 		if($log == 1){
+			if($userr == $name){echo 0; exit();}
 			$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `commentupvote` WHERE `user`=? AND `commenter`=?)");
 			$stmt->bind_param('ss', $name,$userr);
 			$stmt->execute();
@@ -646,23 +470,19 @@ if($a == 133 && isset($_POST['user'])){ // Removing a user from comment upvote l
 			echo 0;
 			exit();
 		}
-	}else{
-		echo 3;
-		exit();
-	}
 }
 if($a == 14 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable'])){ // Changing Settings for Comment Upvote
 	$userr =$_POST['user'];
 	$weight =$_POST['weight']*100;
 	$minute =$_POST['minute'];
 	$enable =$_POST['enable'];
-	
+
 	if($enable == 1){
 		$enable = 1;
 	}else{
 		$enable=0;
 	}
-	
+
 	if(!call('get_accounts','["'.$userr.'"]')){
 		echo 4; exit();
 	}
@@ -670,64 +490,30 @@ if($a == 14 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 		echo 9;
 		exit();
 	}
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
+	if($log == 1){
+		if($userr == $name){echo 0; exit();}
+		$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `commentupvote` WHERE `user`=? AND `commenter`=?)");
+		$stmt->bind_param('ss', $name,$userr);
 		$stmt->execute();
 		$result = $stmt->get_result();
 		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
+		foreach($row as $x){}
+		if($x == 0){
+			echo 2;
+			exit();
 		}else{
-			$log = 0;
-		}
-		if($userr == $name){echo 0; exit();}
-		
-		if($log == 1){
-			$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `commentupvote` WHERE `user`=? AND `commenter`=?)");
-			$stmt->bind_param('ss', $name,$userr);
+			$stmt = $conn->prepare("UPDATE `commentupvote` SET `weight`=?,`aftermin`=?,`enable`=? WHERE `user`=? AND `commenter`=?");
+			$stmt->bind_param('sssss', $weight,$minute,$enable,$name,$userr);
 			$stmt->execute();
-			$result = $stmt->get_result();
-			$row = $result->fetch_assoc();
-			foreach($row as $x){}
-			if($x == 0){
-				echo 2;
-				exit();
-			}else{
-				$stmt = $conn->prepare("UPDATE `commentupvote` SET `weight`=?,`aftermin`=?,`enable`=? WHERE `user`=? AND `commenter`=?");
-				$stmt->bind_param('sssss', $weight,$minute,$enable,$name,$userr);
-				$stmt->execute();
-				echo 1;
-				exit();
-			}
-		}else{
-			echo 8;
+			echo 1;
 			exit();
 		}
 	}else{
-		echo 3;
+		echo 8;
 		exit();
 	}
 }
 if($a == 16 && isset($_POST['enable'])){ // Enablig claim rewards
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
-		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
-		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		
 		if($log == 1){
 			$stmt = $conn->prepare("UPDATE `users` SET `claimreward`=1 WHERE `user`=?");
 			$stmt->bind_param('s', $name);
@@ -738,51 +524,26 @@ if($a == 16 && isset($_POST['enable'])){ // Enablig claim rewards
 			echo 8;
 			exit();
 		}
-	}else{
-		echo 3;
-		exit();
-	}
 }
 if($a == 16 && isset($_POST['disable'])){ // Disabling claim rewards
-	if(isset($_COOKIE['luser']) && isset($_COOKIE['lpw'])){
-		require_once('d_b.php');
-		$stmt = $conn->prepare("SELECT * FROM `users` WHERE `user` = ?");
+	if($log == 1){
+		$stmt = $conn->prepare("UPDATE `users` SET `claimreward`=0 WHERE `user`=?");
 		$stmt->bind_param('s', $name);
-		$name = $_COOKIE['luser'];
-		$pw = $_COOKIE['lpw'];
 		$stmt->execute();
-		$result = $stmt->get_result();
-		$row = $result->fetch_assoc();
-		if($row['pw'] == $pw){
-			$log = 1;
-		}else{
-			$log = 0;
-		}
-		
-		if($log == 1){
-			$stmt = $conn->prepare("UPDATE `users` SET `claimreward`=0 WHERE `user`=?");
-			$stmt->bind_param('s', $name);
-			$stmt->execute();
-			echo 1;
-			exit();
-		}else{
-			echo 8;
-			exit();
-		}
+		echo 1;
+		exit();
 	}else{
-		echo 3;
+		echo 8;
 		exit();
 	}
 }
 
 
-
-
-require_once('he_ad.php');
-require_once('func.php');
+require_once('inc/temp/head.php');
+require_once('inc/dep/func.php');
 if($log == 0){
 	echo 'You should login.<script type="text/javascript">window.location.href = "/register";</script>';
-	header("Location: /");
+	header("Location: /register");
 	exit();
 }
 $x = json_decode(call('get_accounts','["'.$name.'"]'));
@@ -803,7 +564,7 @@ if(isset($_POST['powerlimit']) && is_numeric($_POST['powerlimit']) && $_POST['po
 	echo '<script>setTimeout(function(){$.notify({icon: "pe-7s-check",message: "Successfully saved."},{type: "success",timer: 6000});},1000);</script>';
 }
 
-include('inc/js.php'); // some css + js functions
+include('inc/dash/js.php'); // some css + js functions
 
 if($auth == 0){ ?>
 
@@ -823,7 +584,7 @@ if($auth == 0){ ?>
 </div>
 
 <? }else{ ?>
-<? if($a ==0){ //Dashboard 
+<? if($a ==0){ //Dashboard
 
 $result = $conn->query("SELECT `current_power`, `limit_power` FROM `users` WHERE `user`='$name'");
 foreach($result as $x){
@@ -833,11 +594,11 @@ foreach($result as $x){
 		$powernow1 = 'Updating... (can take 5 minutes)';
 	}
 }
-?> 
+?>
 
 
 <!-- dashboard menu -->
-<div class="content">
+<div class="row" style="margin-top:50px;">
 	<div class="col-md-3"></div>
 	<center>
 		<div class="col-md-6">
@@ -847,9 +608,10 @@ foreach($result as $x){
 						<h5 style="color:red;">Please leave Steemauto if you don't understand how it works or what it does. You could harm your Steem account if you change settings that you do not understand.</h5>
 						<h3>Welcome <? echo $name; ?>,</h3>
 
-						<br>Please choose an option:<br>
+						<br>Please Choose One:<br>
+						<a href="#settings" onclick="document.getElementById('settings').scrollIntoView();" class="btn btn-warning">Settings</a><br><br>
 						<a href="dash.php?i=1" class="btn btn-primary">Curation Trail</a>
-						<a href="dash.php?i=2" class="btn btn-primary">Fan Base</a><br>
+						<a href="dash.php?i=2" class="btn btn-primary">Fanbase</a><br>
 						<a style="margin-top:5px;" href="dash.php?i=13" class="btn btn-primary">Upvote Comments</a>
 						<a style="margin-top:5px;" href="dash.php?i=11" class="btn btn-primary">Schedule Posts</a><br>
 						<a style="margin-top:5px;" href="dash.php?i=16" class="btn btn-primary">Claim Rewards</a><br><hr>
@@ -864,11 +626,11 @@ foreach($result as $x){
 </div>
 
 <!-- settings -->
-<div class="content"  style="margin-bottom:5px; padding-bottom:5px;">
+<div class="row" style="margin-bottom:5px; padding-bottom:5px;">
 	<div class="col-md-3"></div>
 	<div class="col-md-6">
 		<div class="content">
-			<div class="card">
+			<div class="card" id="settings">
 				<div class="content">
 					<center>
 						<h4 style="border-bottom:1px solid #000; padding-bottom:10px;">Settings</h4>
@@ -885,32 +647,33 @@ foreach($result as $x){
 					<p>Your voting power will updated every 5 minutes.</p>
 					<p>Read more about voting power in the Steemit FAQ.</p>
 					<p>You can check your voting power here: <a href="https://steemd.com/@<? echo $name; ?>">https://steemd.com/@<? echo $name; ?></a></p>
-					
+
 				</div>
 			</div>
 		</div>
 	</div>
 	<div class="col-md-3"></div>
 </div>
-<? 
+
+<?
 }elseif($a == 1){ //Curation Trail
-	include('inc/trail.php');
+	include('inc/dash/trail.php');
 }elseif($a == 2){ //Fanbase
-	include('inc/fanbase.php');
+	include('inc/dash/fanbase.php');
 }elseif($a == 11){ // Schedule Posts
-	include('inc/scheduled.php');
+	include('inc/dash/scheduled.php');
 }elseif($a == 13){ // Comment upvotes
-	include('inc/commentupvote.php');
+	include('inc/dash/commentupvote.php');
 }elseif($a == 15){ // List of trailers and fanbase followers
-	include('inc/list.php');
+	include('inc/dash/list.php');
 }elseif($a == 16){ // Claim Rewards
-	include('inc/claimreward.php');
+	include('inc/dash/claimreward.php');
 }else{
 	header("Location: /");
-} 
+}
 
 
 }
 
-require('fo_oter.php');
+require('inc/temp/footer.php');
 ?>
