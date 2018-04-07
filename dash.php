@@ -281,21 +281,26 @@ if($a == 9 && isset($_POST['user'])){ // Following a Fan by submitting form
 		}
 	}else{echo 0;exit();}
 }
-if($a == 10 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable'])){ // Settings For a Fan.
+if($a == 10 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST['minute']) && isset($_POST['enable']) && isset($_POST['dailylimit'])){ // Settings For a Fan.
 	$userr =$_POST['user'];
 	$minute =$_POST['minute'];
 	$weight =$_POST['weight'];
 	$enable =$_POST['enable'];
+	$dailylimit =$_POST['dailylimit'];
 	if($enable == 1){
 		$enable = 1;
 	}else{
 		$enable = 0;
 	}
-	if(!is_numeric($minute) || !is_numeric($weight)){
+	if(!is_numeric($minute) || !is_numeric($weight) || !is_numeric($dailylimit)){
 		echo 0;
 		exit();
 	}
 	if($minute > 30 || $minute < 0 || $weight < 0.01 || $weight > 100){
+		echo 0;
+		exit();
+	}
+	if($dailylimit < 1 || $dailylimit > 99){
 		echo 0;
 		exit();
 	}
@@ -306,7 +311,7 @@ if($a == 10 && isset($_POST['user']) && isset($_POST['weight']) && isset($_POST[
 			foreach($c as $c){}
 		}
 		if($c == 1){
-			$result = $conn->query("UPDATE `fanbase` SET `weight`='$weight' , `aftermin`='$minute',`enable`='$enable' WHERE `fan`='$userr' AND `follower`='$name'");
+			$result = $conn->query("UPDATE `fanbase` SET `weight`='$weight' , `aftermin`='$minute',`enable`='$enable',`dailylimit`='$dailylimit',`limitleft`='$dailylimit' WHERE `fan`='$userr' AND `follower`='$name'");
 			echo 1;
 			exit();
 		}else{

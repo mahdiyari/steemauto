@@ -21,7 +21,7 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 					<div class="card"> <!-- 4 -->
 						<div class="content"> <!-- 5 -->
 							<h3>Searching for fan: </h3><br>
-							<? 
+							<?
 							$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `fans` WHERE `fan`=?)");
 							$searchedfan = $_GET['fan'];
 							$stmt->bind_param('s', $searchedfan);
@@ -44,14 +44,14 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 								}else{
 									$alreadyfollowed = 0;
 								}
-								
+
 								?>
 								<strong>Fan name:</strong><span> <? echo htmlspecialchars($searchedfan); ?></span><br>
 								<strong>Followers:</strong><span> <? echo $row['followers']; ?> (<a href="/dash.php?i=15&id=2&user=<? echo htmlspecialchars($searchedfan); ?>">Show enable followers</a>)</span><br><br>
 								<? if($alreadyfollowed){ ?>
 									<button onclick="if(confirm('Are you sure?')){unfollow1('<? echo $row['fan']; ?>');};" class="btn btn-danger" <? if($row['fan'] == $name){echo 'disabled="disabled"';} ?>>UNFOLLOW</button>
 									<button onclick="showset('1');" class="btn btn-primary">Settings</button>
-									<? 
+									<?
 									$resultt = $conn->query("SELECT * FROM `fanbase` WHERE `follower` = '$name' AND `fan`='$searchedfan'");
 									foreach($resultt as $n){}
 									?>
@@ -76,15 +76,15 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 										</div>
 										<div class="col-md-3"></div>
 									</div>
-									<!-- /Settings -->	
-										
+									<!-- /Settings -->
+
 								<? }else{ ?>
 										<button onclick="if(confirm('Are you sure?')){follow1('<? echo $row['fan']; ?>');};" class="btn btn-primary" <? if($row['fan'] == $name){echo 'disabled="disabled"';} ?>>FOLLOW</button>
 								<? } ?>
-								
-								
-								
-								<?	
+
+
+
+								<?
 							}else{ ?>
 								<p style="color:red;">Can't find. First, someone should follow that fan.</p>
 							<?
@@ -95,7 +95,7 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 				</div> <!-- /3 -->
 			<div class="col-md-3"></div>
 		</div> <!-- /2 -->
-		
+
 		<?
 	}else{ ?>
 
@@ -123,7 +123,7 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 				<div class="content"><!-- content -->
 					<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">You Are following:</h3>
 					<div style="max-height:600px; overflow:auto;" class="table-responsive-vertical shadow-z-1">
-						<? 
+						<?
 						$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans`)");
 						foreach($result as $x){
 							foreach($x as $x){}
@@ -147,12 +147,13 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 											<th>Followers</th>
 											<th>Weight</th>
 											<th>Wait Time</th>
+											<th>Daily Limit<abbr data-toggle="tooltip" title="You will upvote only limited posts per 24 hours.">?</abbr></th>
 											<th>Status</th>
 											<th>Action</th>
 										</tr>
 									</thead>
 									<tbody>
-										
+
 										<?
 										$result = $conn->query("SELECT * FROM `fanbase` WHERE `follower` = '$name'");
 										$k = 1;
@@ -176,23 +177,31 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 													<td data-title="Status"><? echo $b['followers']; ?></td>
 													<td data-title="Status"><? echo $n['weight']/100; ?>%</td>
 													<td data-title="Status"><? echo $n['aftermin']; ?> min</td>
+													<td data-title="Status"><? echo $n['dailylimit'] ?></td>
 													<td data-title="Status"><? echo $status ?></td>
 													<td data-title="Status">
 														<button onclick="showset('<? echo $k; ?>');" class="btn btn-primary">Settings</button>
 														<button onclick="if(confirm('Are you sure?')){unfollow1('<? echo $b['fan']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
-													</td> 
+													</td>
 												</tr>
-								
+
 												<!-- Settings -->
 												<div class="row" style="margin:0 !important;">
 													<div class="col-md-3"></div>
 													<div style="text-align:left; display:none; padding:20px;" id="set<? echo $k; ?>" class="col-md-6">
 														<form onsubmit="settings1('<? echo $b['fan']; ?>'); return false;">
 															<label>Settings for Fan: <a href="https://steemit.com/@<? echo $b['fan']; ?>" target="_blank">@<? echo $b['fan']; ?></a></label>
+															<!-- voting weight -->
 															<label>Weight: Default Weight is 100%. leave it empty to be default.</label>
 															<input id="weight<? echo $b['fan']; ?>" placeholder="Voting Weight" value="<? echo $n['weight']/100; ?>" name="weight" type="number" class="form-control" step="0.01" min="0" max="100">
-															<label>Time to wait before voting. Default Time is 0 minutes.</label>
+															<!-- wait time before upvoting -->
+															<label for="aftermin">Time to wait before voting. Default Time is 0 minutes.</label>
 															<input id="aftermin<? echo $b['fan']; ?>" placeholder="Upvoting After X Minutes." value="<? echo $n['aftermin']; ?>" name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
+															<hr>
+															<!-- daily limit -->
+															<label for="dailylimit">Daily limit:<abbr data-toggle="tooltip" title="You will upvote only limited posts per 24 hours.">?</abbr></label>
+															<input type="number" name="dailylimit" placeholder="Voting Weight" id="dailylimit<? echo $b['fan']; ?>" class="form-control" value="<? echo $n['dailylimit'] ?>" min="1" max="99" step="1" required>
+															<!-- enable/disable -->
 															<li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
 																Enabled:
 																<div class="material-switch pull-right">
@@ -205,11 +214,11 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 													</div>
 													<div class="col-md-3"></div>
 												</div>
-												<!-- /Settings -->		
-								
+												<!-- /Settings -->
+
 												<?
 												$k += 1;
-									
+
 											}
 										}
 										?>
@@ -221,13 +230,13 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 							}
 						}
 						?>
-					</div> 
+					</div>
 				</div><!-- /contact -->
 			</div><!-- /card -->
 		</div><!-- /Col-12 -->
-	</div><!-- /Row -->	
-	
-	
+	</div><!-- /Row -->
+
+
 	<div class="row">
 		<div class="col-md-3"></div>
 		<div class="col-md-6">
@@ -245,15 +254,15 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 		</div>
 		<div class="col-md-3"></div>
 	</div>
-	
-	
-	<!-- -->	
+
+
+	<!-- -->
 	<div class="row" style="margin:0 !important;"> <!-- Row -->
 		<div class="col-md-12"> <!-- Col-12 -->
 			<div class="card"><!-- card -->
 				<div class="content"><!-- content -->
 					<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">Top Fans:</h3>
-					<? 
+					<?
 					$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans` ORDER BY `fans`.`followers` DESC LIMIT $mysqlpage,20)");
 					foreach($result as $x){
 						foreach($x as $x){}
@@ -309,11 +318,11 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 											<? if($x['fan']!=$name && $s ==0){ ?>
 												<td data-title="Status">
 													<button onclick="if(confirm('Are you sure?')){follow1('<? echo $x['fan']; ?>');};" class="btn btn-primary">FOLLOW</button>
-												</td> 
+												</td>
 											<? }elseif($s == 1){ ?>
 												<td data-title="Status">
 													<button onclick="if(confirm('Are you sure?')){unfollow1('<? echo $x['fan']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
-												</td> 
+												</td>
 											<? }else{ ?>
 												<td data-title="Status">
 

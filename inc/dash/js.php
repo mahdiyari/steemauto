@@ -3,7 +3,7 @@
 .closebtn{margin-left:15px;color:#fff;font-weight:700;float:right;font-size:22px;line-height:20px;cursor:pointer;transition:.3s}.closebtn:hover{color:#000}#alert{opacity:1;transition:opacity 5s;width:300px;position:fixed;top:60px;right:10px}.tr1 td,.tr2 td{max-width:250px}.material-switch>input[type=checkbox]{display:none}.material-switch>label{cursor:pointer;height:0;position:relative;width:40px}.material-switch>label::after,.material-switch>label::before{content:'';margin-top:-8px;position:absolute}.material-switch>label::before{background:#000;box-shadow:inset 0 0 10px rgba(0,0,0,.5);border-radius:8px;height:16px;opacity:.3;transition:all .4s ease-in-out;width:40px}.material-switch>label::after{background:#fff;border-radius:16px;box-shadow:0 0 5px rgba(0,0,0,.3);height:24px;left:-4px;top:-4px;transition:all .3s ease-in-out;width:24px}.material-switch>input[type=checkbox]:checked+label::before{background:inherit;opacity:.5}.material-switch>input[type=checkbox]:checked+label::after{background:inherit;left:20px}
 </style>
 <script>
-function follow(user){
+function follow(user){ //follow a trail
 	$('.btn').attr('disabled','true');
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -45,7 +45,7 @@ function follow(user){
 
 	return 1;
 }
-function unfollow(user){
+function unfollow(user){ //unfollow a trail
 	$('.btn').attr('disabled','true');
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -90,7 +90,7 @@ function unfollow(user){
 var recent;
 var recentl;
 var ne;
-function showset(i){
+function showset(i){ //show settings
 	ne = '#set'+i;
 	if(recent != null && recent != ne){
 		recentl.hide(500);
@@ -104,7 +104,7 @@ function showset(i){
 	}
 }
 
-function settings(user){
+function settings(user){ //settings for trail
 	$('.btn').attr('disabled','true');
 	var minute = document.getElementById('aftermin'+user).value;
 	var votingway;
@@ -159,10 +159,10 @@ function settings(user){
 
 	return 1;
 }
-function showbecome(){
+function showbecome(){ //show become trail
 	$('#become').toggle(500);
 }
-function become(){
+function become(){ //becoming/editing trail
 	$('.btn').attr('disabled','true');
 	var desc = document.getElementById('description').value;
 	if(desc == '' || desc == null){
@@ -202,7 +202,7 @@ function become(){
 }
 
 
-function follow1(user){
+function follow1(user){ //follow a fan
 	$('.btn').attr('disabled','true');
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -244,7 +244,7 @@ function follow1(user){
 
 	return 1;
 }
-function unfollow1(user){
+function unfollow1(user){ //unfollow a fan
 	$('.btn').attr('disabled','true');
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -286,7 +286,7 @@ function unfollow1(user){
 
 	return 1;
 }
-function follow2(){
+function follow2(){ //follow a fan by form
 	$('.btn').attr('disabled','true');
 	var user = document.getElementById('userx').value;
 	var xmlhttp = new XMLHttpRequest();
@@ -338,10 +338,11 @@ function follow2(){
 
 	return 1;
 }
-function settings1(user){
+function settings1(user){ //settings for a fan
 	$('.btn').attr('disabled','true');
 	var minute = document.getElementById('aftermin'+user).value;
 	var weight = document.getElementById('weight'+user).value;
+	var dailylimit = document.getElementById('dailylimit'+user).value;
 	if(minute == '' || minute == null){
 		minute = 0;
 	}
@@ -381,7 +382,7 @@ function settings1(user){
 	};
 	xmlhttp.open("POST", "dash.php?i=10", true);
 	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable);
+	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable+"&dailylimit="+dailylimit);
 
 	return 1;
 }
@@ -420,7 +421,7 @@ function post(){
 				}else if(this.responseText == 2){
 					document.getElementById('result').innerHTML = '<div class="alert alert-danger">Enter Only 5 Tags. Separated by Spaces.</div>';
 					$('.btn').removeAttr('disabled');
-				}else{ 
+				}else{
 					document.getElementById('result').innerHTML = '<div class="alert alert-danger">Error! Check Inputs or Report.</div>';
 					$('.btn').removeAttr('disabled');
 				}
