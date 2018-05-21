@@ -60,6 +60,7 @@ require_once('inc/temp/head.php');
 				<p>Ask your questions from the <a href="/contact.php" target="_blank">Contact</a> page.</p>
 
 				<h3>Useful articles:</h3>
+				<p><a href="https://steemit.com/steemit/@energyaddict22/steemit-essentials-steemauto" target="_blank">Steemit Essentials - Steemauto</a> by @energyaddict22</p>
 				<p><a href="https://steemit.com/guide/@scrooger/steemauto-full-guide-and-how-to-register" target="_blank">STEEMAUTO - Full guide and how to REGISTER</a> by @scrooger</p>
 				<p><a href="https://steemit.com/utopian-io/@vidafitnessfeliz/video-tutorial-que-es-steemauto-y-por-que-usarlo" target="_blank">Spanish video tutorial</a> by @vidafitnessfeliz</p>
 
