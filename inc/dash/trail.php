@@ -13,7 +13,156 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 	$searchtrail = 0;
 }
 ?>
+<!-- Settings -->
+<div class="modal fade" id="myModalselectedtrails" role="dialog">
+	<div class="modal-dialog">
+	<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Settings for selected trails</h4>
+			</div>
+			<div class="modal-body">
+				<!-- body -->
+				<div style="text-align:left; display:; padding:20px;" id="setall" class="col-md-12">
+					<form onsubmit="settingsforslectedtrails(); return false;">
+						<b style="color:orange;">Read <a target="_blank" href="/faq.php">FAQ</a> before editing.</b><br><br>
+						<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+							<strong>Settings for selected Trails</strong>
+							<br><br>
+							<div class="form-check" style="margin-bottom:5px;">
+								<input class="form-check-input" type="checkbox" value="" id="enableall" checked>
+								<label style="color:#2b0808;" class="form-check-label" id="enabling" for="defaultCheck1">
+									Enable (uncheck for disabling)
+								</label>
+							</div>
+							<div class="form-group" style="border:1px solid #ddd; padding:5px;">
+								<label>Voting weight (%): (Default is 50%)</label>
+								<input id="weightall" placeholder="Voting weight" name="weight" type="number" class="form-control" value="50" step="0.01" min="0" max="100">
 
+								<div class="form-check">
+									<label style="color:#2b0808;" class="form-check-label">
+										<input class="form-check-input" type="radio" name="votingwayall" id="votingway" value="1" checked>
+										Scale voting weight (default)
+									</label>
+								</div>
+								<div class="form-check">
+									<label style="color:#2b0808;" class="form-check-label">
+										<input class="form-check-input" type="radio" name="votingwayall" id="votingway" value="2">
+										Fixed voting weight
+									</label>
+								</div>
+							</div>
+							<label>Time to wait before voting (minutes): (Default is 0)</label>
+							<input id="afterminall" value="0" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
+							<input style="margin-top:10px;"value="Apply to selected trails" type="submit" class="btn btn-primary">
+						</div>
+					</form>
+				</div>
+			</div>
+			<div style="border-top:0;" class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+<script type="text/javascript">
+//Select/unselect all function
+	function togglecheckbox(source) {
+		var checkboxes = document.getElementsByName('trail_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			checkboxes[i].checked = source.checked;
+		}
+	}
+	function settingsforslectedtrails(){ //settings for trail
+		$('.btn').attr('disabled','true');
+		var minute = document.getElementById('afterminall').value;
+		var votingway;
+		var radios = document.getElementsByName('votingwayall');
+		for (var i = 0, length = radios.length; i < length; i++){
+			if (radios[i].checked){
+				votingway = radios[i].value;
+				break;
+			}
+		}
+		var weight = document.getElementById('weightall').value;
+		if(minute == '' || minute == null){
+			minute = 0;
+		}
+		if(weight == '' || weight == null){
+			weight = 50;
+		}
+
+		var enable;
+		if(document.getElementById('enableall').checked){
+			enable = 1;
+		}else{
+			enable = 0;
+		}
+		var checkboxes = document.getElementsByName('trail_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			if(checkboxes[i].checked){
+				var user = checkboxes[i].id;
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						if(this.responseText == 1){
+							$.notify({
+								icon: 'pe-7s-check',
+								message: "Changes Successfully Saved."
+							},{
+								type: 'success',
+								timer: 1000
+							});
+							setTimeout(function(){
+								location.reload();
+							},1000);
+						}else{
+							$.notify({
+								icon: 'pe-7s-attention',
+								message: "Unknown Error!"
+							},{
+								type: 'danger',
+								timer: 1000
+							});
+							setTimeout(function(){
+								$('.btn').removeAttr('disabled');
+							},1000);
+						}
+					}
+				};
+				xmlhttp.open("POST", "dash.php?i=5", true);
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&votingway="+votingway+"&enable="+enable);
+			}
+		}
+		return 1;
+	}
+	$(function(){
+		$('#myModalselectedtrails').appendTo('body');
+	});
+	function modalforselectedtrails() {
+		var checked = 0;
+		var checkboxes = document.getElementsByName('trail_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			if(checkboxes[i].checked){
+				checked = 1;
+			}
+		}
+		if(checked){
+			$('[id=\'myModalselectedtrails\']').modal('show');
+		}else{
+			$.notify({
+				icon: 'pe-7s-attention',
+				message: "Please select some trail from the list!"
+			},{
+				type: 'warning',
+				timer: 1000
+			});
+		}
+	}
+</script>
 
 <div class="content"> <!-- 1 -->
 <? if($searchtrail == 1){	?>
@@ -151,8 +300,10 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 			<div class="content"> <!-- content -->
 
 
-				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">You are following:</h3>
-
+				<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">
+					You are following:
+					<button style="float:right;" type="button" class="btn btn-primary" onclick="modalforselectedtrails();">Settings for selections</button>
+				</h3>
 				<div style="max-height:600px; overflow:auto;" class="table-responsive-vertical shadow-z-1"> <!-- 8 -->
 
 					<?
@@ -175,9 +326,9 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 						<table id="table" class="table table-hover table-mc-light-blue">
 						  <thead>
 							<tr>
+								<th><input type="checkbox" name="" onclick="togglecheckbox(this);" value="" id="selectall"></th>
 							  <th>#</th>
 							  <th>Username</th>
-
 							  <th>Followers</th>
 							  <th>Weight</th>
 							  <th>Method</th>
@@ -212,9 +363,9 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 							?>
 
 								<tr class="tr1">
+									<td data-title="ID"><input type="checkbox" name="trail_id" value="" id="<? echo $b['user']; ?>"></td>
 									<td data-title="ID"><? echo $k; ?></td>
 									<td data-title="Name"><a href="/dash.php?i=1&trail=<? echo $b['user']; ?>" target="_blank">@<? echo $b['user']; ?></a></td>
-
 									<td data-title="Status"><? echo $b['followers']; ?></td>
 									<td data-title="Status"><? echo $w; ?></td>
 									<td data-title="Status"><? echo $method; ?></td>
@@ -227,10 +378,8 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 									</td>
 								</tr>
 								<!-- Settings -->
-
 								<div class="modal fade" id="myModal<? echo $b['user']; ?>" role="dialog">
 									<div class="modal-dialog">
-
 									<!-- Modal content-->
 										<div class="modal-content">
 											<div class="modal-header">
@@ -254,7 +403,6 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 															<div class="form-group" style="border:1px solid #ddd; padding:5px;">
 																<label>Voting weight (%): (Default is 50%)</label>
 																<input id="weight<? echo $b['user']; ?>" placeholder="Voting weight" name="weight" type="number" class="form-control" value="<? echo $n['weight']/100; ?>" step="0.01" min="0" max="100">
-
 																<div class="form-check">
 																	<label style="color:#2b0808;" class="form-check-label">
 																		<input class="form-check-input" type="radio" name="votingway<? echo $b['user']; ?>" id="votingway" value="1" <? if($n['votingway'] == 1){echo 'checked';} ?>>
@@ -268,13 +416,8 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 																	</label>
 																</div>
 															</div>
-
-
 															<label>Time to wait before voting (minutes): (Default is 0)</label>
 															<input id="aftermin<? echo $b['user']; ?>" value="<? echo $n['aftermin']; ?>" placeholder="Upvoting After X Minutes." name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
-
-
-
 															<input style="margin-top:10px;"value="Save Settings" type="submit" class="btn btn-primary">
 														</div>
 													</form>
@@ -284,7 +427,6 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 												<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 											</div>
 										</div>
-
 									</div>
 								</div>
 								<script>

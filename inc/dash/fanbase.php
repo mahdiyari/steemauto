@@ -13,6 +13,140 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 	$searchfan = 0;
 }
 ?>
+
+<!-- Settings for selected fans -->
+<div class="modal fade" id="myModalselectedfans" role="dialog">
+	<div class="modal-dialog">
+	<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Settings for selected fans</h4>
+			</div>
+			<div class="modal-body">
+				<!-- body -->
+				<div style="text-align:left; display:; padding:20px;" id="setall" class="col-md-12">
+					<form onsubmit="settingsforselectedfans(); return false;">
+						<label>Settings for selected Fans:</label>
+						<!-- voting weight -->
+						<label>Weight: Default Weight is 100%. leave it empty to be default.</label>
+						<input id="weightall" placeholder="Voting Weight" value="50" name="weight" type="number" class="form-control" step="0.01" min="0" max="100">
+						<!-- wait time before upvoting -->
+						<label for="aftermin">Time to wait before voting. Default Time is 0 minutes.</label>
+						<input id="afterminall" placeholder="Upvoting After X Minutes." value="0" name="aftermin" type="number" class="form-control" step="1" min="0" max="30">
+						<hr>
+						<!-- daily limit -->
+						<label for="dailylimit">Daily limit:<abbr data-toggle="tooltip" title="You will upvote only limited posts per 24 hours.">?</abbr></label>
+						<input type="number" name="dailylimit" placeholder="Voting Weight" id="dailylimitall" class="form-control" value="2" min="1" max="99" step="1" required>
+						<!-- enable/disable -->
+						<li style="margin-top:5px; margin-bottom:5px;" class="list-group-item">
+							Enabled:
+							<div class="material-switch pull-right">
+								<input id="enableall" name="enable" class="enable" type="checkbox" checked/>
+								<label for="enableall" id="enable" class="label-success"></label>
+							</div>
+						</li>
+						<input style="margin-top:10px;"value="Apply to selected fans" type="submit" class="btn btn-primary">
+					</form>
+
+				</div>
+			</div>
+			<div style="border-top:0;" class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /End settings for selected fans -->
+<script type="text/javascript">
+//Select/unselect all function
+	function togglecheckbox(source) {
+		var checkboxes = document.getElementsByName('fan_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			checkboxes[i].checked = source.checked;
+		}
+	}
+	function settingsforselectedfans(){ //settings for a fan
+		$('.btn').attr('disabled','true');
+		var minute = document.getElementById('afterminall').value;
+		var weight = document.getElementById('weightall').value;
+		var dailylimit = document.getElementById('dailylimitall').value;
+		if(minute == '' || minute == null){
+			minute = 0;
+		}
+		if(weight == '' || weight == null){
+			weight = 100;
+		}
+		var enable;
+		if(document.getElementById('enableall').checked){
+			enable = 1;
+		}else{
+			enable = 0;
+		}
+		var checkboxes = document.getElementsByName('fan_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			if(checkboxes[i].checked){
+				var user = checkboxes[i].id;
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						if(this.responseText == 1){
+							$.notify({
+								icon: 'pe-7s-check',
+								message: "Changes Successfully Saved!"
+							},{
+								type: 'success',
+								timer: 1000
+							});
+							setTimeout(function(){
+								location.reload();
+							},1000);
+						}else{
+							$.notify({
+								icon: 'pe-7s-attention',
+								message: "Unknown Error!"
+							},{
+								type: 'danger',
+								timer: 1000
+							});
+							setTimeout(function(){
+								$('.btn').removeAttr('disabled');
+							},1000);
+						}
+					}
+				};
+				xmlhttp.open("POST", "dash.php?i=10", true);
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable+"&dailylimit="+dailylimit);
+			}
+		}
+		return 1;
+	}
+	$(function(){
+		$('#myModalselectedfans').appendTo('body');
+	});
+	function modalforselectedfans() {
+		var checked = 0;
+		var checkboxes = document.getElementsByName('fan_id');
+		for(var i=0, n=checkboxes.length;i<n;i++) {
+			if(checkboxes[i].checked){
+				checked = 1;
+			}
+		}
+		if(checked){
+			$('[id=\'myModalselectedfans\']').modal('show');
+		}else{
+			$.notify({
+				icon: 'pe-7s-attention',
+				message: "Please select some fan from the list!"
+			},{
+				type: 'warning',
+				timer: 1000
+			});
+		}
+	}
+</script>
+
 <div class="content"> <!-- Content -->
 <? if($searchfan == 1){	?>
 		<div class="row" style="margin:0 !important"> <!-- 2 -->
@@ -128,7 +262,10 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 		<div class="col-md-12"> <!-- Col-12 -->
 			<div class="card"><!-- card -->
 				<div class="content"><!-- content -->
-					<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">You Are following:</h3>
+					<h3 style="border-bottom:1px solid #000; padding-bottom:10px;">
+						You Are following:
+						<button style="float:right;" type="button" class="btn btn-primary" onclick="modalforselectedfans();">Settings for selections</button>
+					</h3>
 					<div style="max-height:600px; overflow:auto;" class="table-responsive-vertical shadow-z-1">
 						<?
 						$result = $conn->query("SELECT EXISTS(SELECT * FROM `fans`)");
@@ -149,6 +286,7 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 								<table id="table" class="table table-hover table-mc-light-blue">
 									<thead>
 										<tr>
+											<th><input type="checkbox" name="" onclick="togglecheckbox(this);" value="" id="selectall"></th>
 											<th>#</th>
 											<th>Username</th>
 											<th>Followers</th>
@@ -179,6 +317,7 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 												?>
 
 												<tr class="tr1">
+													<td data-title="ID"><input type="checkbox" name="fan_id" value="" id="<? echo $b['fan']; ?>"></td>
 													<td data-title="ID"><? echo $k; ?></td>
 													<td data-title="Name"><a href="/dash.php?i=2&fan=<? echo $b['fan']; ?>" target="_blank">@<? echo $b['fan']; ?></a></td>
 													<td data-title="Status"><? echo $b['followers']; ?></td>
