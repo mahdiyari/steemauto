@@ -2,7 +2,13 @@ const config = require('./config');
 var steem = require('steem');
 var mysql = require('mysql');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var con = mysql.createConnection({host: config.db.host,user: config.db.user,password: config.db.pw,database: config.db.name,charset: "utf8mb4"});
+var con = mysql.createConnection({
+  host: config.db.host,
+  user: config.db.user,
+  password: config.db.pw,
+  database: config.db.name,
+  charset: "utf8mb4"
+});
 var wifkey = config.wifkey;
 
 steem.api.setOptions({ url: config.rpc });
@@ -71,12 +77,18 @@ setInterval(function(){
 
 // Check voting power limit
 function checkpowerlimit(voter,author,permlink,weight){
- con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+ con.query('SELECT `current_power`,`limit_power`,`sp` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
    for(i in results){
      var powernow = results[i].current_power;
      var powerlimit = results[i].limit_power;
+     var sp = results[i].sp;
      if(powernow > powerlimit){
-       upvote(voter,author,permlink,weight);
+       //Don't broadcast upvote if sp*weight*power < 1.5
+       if(((powernow/100)*(weight/10000)*sp) > 1.5){
+         upvote(voter,author,permlink,weight);
+       }else{
+         //console.log('low sp');
+       }
      }else{
        //console.log('power is under limit user '+voter);
      }
@@ -129,12 +141,12 @@ function commentupvote(userr,commenter,permlink,parentpermlink){
                        var now = Math.floor(secondss);
                        if(aftermin > 0){
                          var time = parseInt(now+(aftermin*60));
-                         con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`) VALUES ("'+userr+'","'+commenter+'","'+permlink+'","'+weight+'","'+time+'","3")', function (error, results, fields) {
-                         });
-                         con.query('UPDATE `commentupvote` SET `todayvote`=`todayvote`+1 WHERE `user` = "'+userr+'" AND `commenter`="'+commenter+'"', function (error, results, fields) {
-                         });
-                         con.query('INSERT INTO `upvotedcomments`(`user`, `permlink`,`time`) VALUES ("'+commenter+'","'+parentpermlink+'","'+now+'")', function (error, results, fields) {
-                         });
+                         con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`) VALUES ("'+userr+'","'+commenter+'","'+permlink+'","'+weight+'","'+time+'","3")',
+                            function (error, results, fields) {});
+                         con.query('UPDATE `commentupvote` SET `todayvote`=`todayvote`+1 WHERE `user` = "'+userr+'" AND `commenter`="'+commenter+'"',
+                            function (error, results, fields) {});
+                         con.query('INSERT INTO `upvotedcomments`(`user`, `permlink`,`time`) VALUES ("'+commenter+'","'+parentpermlink+'","'+now+'")',
+                            function (error, results, fields) {});
                          //console.log('comment to delay');
                        }else{
                          //console.log('comment to upvote');

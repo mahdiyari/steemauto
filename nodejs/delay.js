@@ -1,20 +1,25 @@
 const config = require('./config');
-var steem = require('steem');
+//var steem = require('steem');
 var mysql = require('mysql');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var con = mysql.createConnection({host: config.db.host,user: config.db.user,password: config.db.pw,database: config.db.name,charset: "utf8mb4"});
 var wifkey = config.wifkey;
 
-steem.api.setOptions({ url: config.rpc });
+//steem.api.setOptions({ url: config.rpc });
 
 // Check voting power limit
 function checkpowerlimit(voter,author,permlink,weight,type){
- con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+ con.query('SELECT `current_power`,`limit_power`,`sp` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
    for(i in results){
      var powernow = results[i].current_power;
      var powerlimit = results[i].limit_power;
+     var sp = results[i].sp;
      if(powernow > powerlimit){
-       upvote(voter,author,permlink,weight);
+       if(((powernow/100)*(weight/10000)*sp) > 1.5){ //Don't broadcast upvote if sp*weight*power < 1.5
+         upvote(voter,author,permlink,weight);
+       }else{
+         //console.log('Low SP');
+       }
      }else{
        //console.log('power is under limit user '+voter);
      }

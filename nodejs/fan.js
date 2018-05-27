@@ -2,7 +2,13 @@ const config = require('./config');
 var steem = require('steem');
 var mysql = require('mysql');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var con = mysql.createConnection({host: config.db.host,user: config.db.user,password: config.db.pw,database: config.db.name,charset: "utf8mb4"});
+var con = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.user,
+	password: config.db.pw,
+	database: config.db.name,
+	charset: "utf8mb4"
+});
 var wifkey = config.wifkey;
 
 steem.api.setOptions({ url: config.rpc });
@@ -49,7 +55,7 @@ function startstream(){
 						//console.log('edited post by '+op[1].author);
 					}else{
 						fanupvote(op[1].author,op[1].permlink);
-						//console.log('fan post detected by: '+op[1].author);
+						console.log('fan post detected by: '+op[1].author);
 					}
 				}
 			}
@@ -74,12 +80,17 @@ setInterval(function(){
 
 // Check voting power limit
 function checkpowerlimit(voter,author,permlink,weight){
-	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+	con.query('SELECT `current_power`,`limit_power`,`sp` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
 		for(i in results){
 			var powernow = results[i].current_power;
 			var powerlimit = results[i].limit_power;
+			var sp = results[i].sp;
 			if(powernow > powerlimit){
-				upvote(voter,author,permlink,weight);
+				if(((powernow/100)*(weight/10000)*sp) > 1.5){ //Don't broadcast upvote if sp*weight*power < 1.5
+					upvote(voter,author,permlink,weight);
+				}else{
+					//console.log('Low SP');
+				}
 			}else{
 				//console.log('power is under limit user '+voter);
 			}
@@ -95,9 +106,9 @@ function upvote(voter,author,permlink,weight){
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			if(JSON.parse(this.responseText).result == 1) {
-				//console.log('up done');
+				console.log('up done');
 			}else{
-				//console.log(JSON.parse(this.responseText).reason);
+				console.log(JSON.parse(this.responseText).reason);
 			}
 		}
 	};
@@ -111,34 +122,28 @@ function upvote(voter,author,permlink,weight){
 // Upvoting Fanbase Followers
 
 var fanupvote = function(author,permlink){
-
 	try{
-
 		var datee = new Date();
 		var secondss = datee.getTime()/1000;
 		con.query('SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` = "'+author+'" AND `enable`=1 AND `limitleft`>0', function (error, results, fields) {
 			for(i in results){
 				var follower = results[i].follower;
-				var voted = 0;
-				if(voted == 0){
-					var weight = results[i].weight;
-					var aftermin = results[i].aftermin;
-					var datee = new Date();
-					var secondss = datee.getTime()/1000;
-					var now = Math.floor(secondss);
-					if(aftermin > 0){
-						var time = parseInt(now+(aftermin*60));
-						con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`) VALUES ("'+follower+'","'+author+'","'+permlink+'","'+weight+'","'+time+'","2")', function (error, results, fields) {});
-						con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="'+author+'" AND `follower`="'+follower+'"', function (error, results, fields) {});
-						//console.log('fan to delay');
-					}else{
-						checkpowerlimit(follower,author,permlink,weight);
-						con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="'+author+'" AND `follower`="'+follower+'"', function (error, results, fields) {});
-						//console.log('fan to up');
-					}
+				var weight = results[i].weight;
+				var aftermin = results[i].aftermin;
+				var datee = new Date();
+				var secondss = datee.getTime()/1000;
+				var now = Math.floor(secondss);
+				if(aftermin > 0){
+					var time = parseInt(now+(aftermin*60));
+					con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`) VALUES ("'+follower+'","'+author+'","'+permlink+'","'+weight+'","'+time+'","2")', function (error, results, fields) {});
+					con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="'+author+'" AND `follower`="'+follower+'"', function (error, results, fields) {});
+					console.log('fan to delay');
+				}else{
+					checkpowerlimit(follower,author,permlink,weight);
+					con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="'+author+'" AND `follower`="'+follower+'"', function (error, results, fields) {});
+					console.log('fan to up');
 				}
 			}
-
 		});
 
 	}

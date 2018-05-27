@@ -45,7 +45,7 @@ function startstream(){
 			if(op[0]=='vote' && !op[1].permlink.match(regex) && op[1].voter != op[1].author && op[1].weight > 0){
 				if(users1.indexOf(op[1].voter) > -1){
 					trailupvote(op[1].voter,op[1].author,op[1].permlink,op[1].weight);
-					//console.log('trail vote detected by: '+op[1].voter);
+					console.log('trail vote detected by: '+op[1].voter);
 				}
 			}
 			if(err2){
@@ -70,12 +70,17 @@ setInterval(function(){
 
 // Check voting power limit
 function checkpowerlimit(voter,author,permlink,weight,votingway,trailer){
-	con.query('SELECT `current_power`,`limit_power` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
+	con.query('SELECT `current_power`,`limit_power`,`sp` FROM `users` WHERE `user`="'+voter+'"', function (error, results, fields) {
 		for(i in results){
 			var powernow = results[i].current_power;
 			var powerlimit = results[i].limit_power;
+			var sp = results[i].sp;
 			if(powernow > powerlimit){
-				upvote(voter,author,permlink,weight,votingway,trailer);
+				if(((powernow/100)*(weight/10000)*sp) > 1.5){ //Don't broadcast upvote if sp*weight*power < 1.5
+					upvote(voter,author,permlink,weight,votingway,trailer);
+				}else{
+					//console.log('Low SP');
+				}
 			}else{
 				//console.log('power is under limit user '+voter);
 			}
@@ -92,9 +97,9 @@ function upvote(voter,author,permlink,weight,votingway,trailer){
 	xmlhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			if(JSON.parse(this.responseText).result == 1) {
-				//console.log('up done');
+				console.log('up done');
 			}else{
-				//console.log(JSON.parse(this.responseText).reason);
+				console.log(JSON.parse(this.responseText).reason);
 			}
 		}
 	};
@@ -138,7 +143,7 @@ var trailupvote = function(userr,author,permlink,fweight){
 								}
 								var secs = aftermin*60;
 								if(aftermin > 0){
-									//console.log('trail to delay');
+									console.log('trail to delay');
 									var time = parseInt(now+(aftermin*60));
 									time = Math.floor(time);
 									if(votingway == 1){
@@ -150,7 +155,7 @@ var trailupvote = function(userr,author,permlink,fweight){
 									}
 								}else{
 									checkpowerlimit(follower,author,permlink,weight,votingway,userr);
-									//console.log('trail to up');
+									console.log('trail to up');
 								}
 							}
 						}
