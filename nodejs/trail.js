@@ -42,10 +42,12 @@ function startstream(){
 		if(!err2){
 			running = 1;
 			var op = blockops;
-			if(op[0]=='vote' && !op[1].permlink.match(regex) && op[1].voter != op[1].author && op[1].weight > 0){
-				if(users1.indexOf(op[1].voter) > -1){
-					trailupvote(op[1].voter,op[1].author,op[1].permlink,op[1].weight);
-					console.log('trail vote detected by: '+op[1].voter);
+			if(op[0]=='vote' && !op[1].permlink.match(regex) && op[1].weight > 0){
+				if(op[1].voter != op[1].author || op[1].voter == 'steemauto'){
+					if(users1.indexOf(op[1].voter) > -1){
+						trailupvote(op[1].voter,op[1].author,op[1].permlink,op[1].weight);
+						console.log('trail vote detected by: '+op[1].voter);
+					}
 				}
 			}
 			if(err2){
