@@ -19,9 +19,6 @@ require_once('inc/temp/head.php');
 				<h3>How does SteemAuto work?</h3>
 				<p>Steemauto uses your account posting authority to post, upvote, and claim rewards for you automatically.</p>
 
-				<h3>I've sent money, why can't I login?</h3>
-				<p>Go to your wallet and make sure you sent exactly 0.001 SBD. Then try again.</p>
-
 				<h3>What is posting authority?</h3>
 				<p>In the Steem blockchain, each account have different keys that let you access different parts of the account. One of these keys is the 'posting key' which can be used to post, comment, upvote, follow, and etc. When using a posting key you can't access an account's balances, so your funds are perfectly safe.</p>
 
