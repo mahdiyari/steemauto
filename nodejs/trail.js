@@ -60,6 +60,8 @@ function startstream(){
 startstream();
 
 // Checking if stream is running or not!
+//it seems failed! commenting for now
+/*
 setInterval(function(){
 	running = 0;
 	setTimeout(function(){
@@ -68,7 +70,7 @@ setInterval(function(){
 		}
 	},30000);
 },100000);
-
+*/
 
 // Check voting power limit
 function checkpowerlimit(voter,author,permlink,weight,votingway,trailer){
