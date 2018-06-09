@@ -8,12 +8,14 @@ var tvfs;
 var tvs;
 steem.api.setOptions({ url: config.rpc2 });
 var arrayusers = [];
+var arryou =[];
 var ix =0;
 var ic =0;
 const server = http.createServer((req, res) => {
   ix =0;
   ic =0;
   arrayusers = [];
+  arryou =[];
   if (req.method == 'POST') {
     var body = '';
   }
@@ -27,10 +29,13 @@ const server = http.createServer((req, res) => {
         tvfs = parseInt(t.total_vesting_fund_steem.replace("STEEM",""));
   			tvs = parseInt(t.total_vesting_shares.replace("VESTS",""));
         var you = JSON.parse(body).req;
-      	for(i in you){
-      		checkpower(you[i].user,you[i].id);
+      	for(let i in you){
+          arryou.push(you[i].user);
           ix = ix+1;
       	}
+        if(arryou){
+          checkpower(arryou);
+        }
         res.writeHead(200, {'Content-Type': 'application/json'});
         var int = setInterval(function () {
           if(ic == ix){
@@ -42,28 +47,32 @@ const server = http.createServer((req, res) => {
 		});
   });
 });
-function checkpower(user,id) {
-  steem.api.getAccountsAsync([user], function(err, result){
+function checkpower(users) {
+  steem.api.getAccountsAsync(users, function(err, result){
     if(!err && result){
-      var u = result[0];
-      var now = new Date();
-      var n = now.getTime()/1000;
-      var last = new Date(u.last_vote_time+'z');
-      var l = last.getTime()/1000;
-      var power = u.voting_power/100 + (parseFloat(n-l)/4320);
-      var powernow = power.toFixed(2);
-      if(powernow > 100){
-        powernow = 100;
+      for(let i in result){
+        let u = result[i];
+        let user = u.name;
+        let now = new Date();
+        let n = now.getTime()/1000;
+        let last = new Date(u.last_vote_time+'z');
+        let l = last.getTime()/1000;
+        let power = u.voting_power/100 + (parseFloat(n-l)/4320);
+        let powernow = power.toFixed(2);
+        if(powernow > 100){
+          powernow = 100;
+        }
+        let delegated = parseInt(u.delegated_vesting_shares.replace("VESTS","")); // VESTS
+        let received = parseInt(u.received_vesting_shares.replace("VESTS","")); // VESTS
+        let vesting = parseInt(u.vesting_shares.replace("VESTS","")); // VESTS
+        let totalvest = vesting + received - delegated;
+        let sp = totalvest * (tvfs/tvs);
+        sp = sp.toFixed(2);
+        let uid = u.id;
+        let obj = {user:user,power:powernow,sp:sp,uid:uid};
+        ic = ic+1;
+        arrayusers.push(obj);
       }
-      var delegated = parseInt(u.delegated_vesting_shares.replace("VESTS","")); // VESTS
-  		var received = parseInt(u.received_vesting_shares.replace("VESTS","")); // VESTS
-  		var vesting = parseInt(u.vesting_shares.replace("VESTS","")); // VESTS
-  		var totalvest = vesting + received - delegated;
-      var sp = totalvest * (tvfs/tvs);
-      sp = sp.toFixed(2);
-      var obj = {user:user,id:id,power:powernow,sp:sp};
-      ic = ic+1;
-      arrayusers.push(obj);
     }
   });
 }

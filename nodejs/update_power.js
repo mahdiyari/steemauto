@@ -18,7 +18,7 @@ function checkvotingpower(user){
       var arrayusers = JSON.parse(this.responseText).req;
 //console.log(arrayusers);
      	for(i in arrayusers){
-        updatepower(arrayusers[i].id,arrayusers[i].power,arrayusers[i].sp);
+        updatepower(arrayusers[i].uid,arrayusers[i].power,arrayusers[i].sp);
       }
     }
   };
@@ -29,8 +29,8 @@ function checkvotingpower(user){
 }
 
 
-function updatepower(id,powernow,sp){
-	con.query('UPDATE `users` SET `current_power`="'+powernow+'",`sp`="'+sp+'" WHERE `id`='+id, function (error, results, fields) {});
+function updatepower(uid,powernow,sp){
+	con.query('UPDATE `users` SET `current_power`="'+powernow+'",`sp`="'+sp+'" WHERE `uid`='+uid, function (error, results, fields) {});
 	return 1;
 }
 

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 27, 2018 at 12:12 PM
+-- Generation Time: Jun 09, 2018 at 02:57 PM
 -- Server version: 5.7.22-0ubuntu0.16.04.1
 -- PHP Version: 7.0.28-0ubuntu0.16.04.1
 
@@ -177,6 +177,7 @@ CREATE TABLE `upvotelater` (
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
+  `uid` int(11) DEFAULT NULL,
   `user` text NOT NULL,
   `email` text,
   `pw` text,
@@ -284,7 +285,8 @@ ALTER TABLE `users`
   ADD KEY `limit_power` (`limit_power`),
   ADD KEY `id` (`id`),
   ADD KEY `current_power` (`current_power`),
-  ADD KEY `paused` (`paused`);
+  ADD KEY `paused` (`paused`),
+  ADD KEY `uid` (`uid`);
 ALTER TABLE `users` ADD FULLTEXT KEY `user` (`user`);
 
 --
