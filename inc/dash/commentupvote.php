@@ -5,7 +5,7 @@
 			<div class="card"> <!-- 4 -->
 				<div class="content"> <!-- 5 -->
 					<h3>Welcome <? echo $name; ?>,</h3><br>
-					This page lets you upvote an user's comments automatically.<br>
+					This page lets you upvote on users comments automatically <b>when they comment on your posts!</b><br>
 					Each user will get only one upvote on each post they comment on and a maximum of two upvotes per day (UTC), even if they write more comments.<br>
 					Remember to configure the upvote weight and wait time.<br>
 					<center><a class="btn btn-success" style="margin-top:8px;" onclick="$('#addusertolist').toggle(500);">Add a User to the List</a></center>
@@ -76,11 +76,11 @@
 									  <td data-title="Status"><? echo ($n['weight']/100).'%'; ?></td>
 									  <td data-title="Status"><? echo $n['aftermin']; ?> min</td>
 									  <td data-title="Status"><? echo $status; ?></td>
-									  
+
 									  <td data-title="Status">
 									  <button onclick="showset('<? echo $k; ?>');" class="btn btn-primary">Settings</button>
 									  <button onclick="if(confirm('Are you sure?')){removeuserfromlist('<? echo $n['commenter']; ?>');};" class="btn btn-danger">REMOVE</button>
-									  </td> 
+									  </td>
 									</tr>
 									<!-- Settings -->
 									<div class="row" style="margin:0 !important;">
