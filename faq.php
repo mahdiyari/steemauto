@@ -39,7 +39,7 @@ require_once('inc/temp/head.php');
 				<p>By using the 'Curation Trail' section, you can automatically upvote the posts (not comments) which are upvoted by the selected user.
 				You can configure the 'upvote weight' for each user on the 'Curation Trail' page.
 				You can also sumbit a short description and become a "trail" which other users will be able to follow.
-				Note: For upvoting an user's authored posts, you should use Fanbase. Curation trails will not follow self upvotes.</p>
+				Note: For upvoting a user's authored posts, you should use Fanbase. Curation trails will not follow self upvotes.</p>
 
 				<h3>What is the difference between 'Scale' and 'Fixed' options when following curation trails?</h3>
 				<p>Fixed voting weight means you will upvote with exact percentage you entered.<br>
