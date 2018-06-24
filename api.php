@@ -4,7 +4,8 @@
 
 // i = 1  json array of curation trail for a steemuser
 //        usage api.php?i=1&user=<steemuseraccountwithout@>
- 
+// i = 2  json array of fanlist trail for a steemuser
+//        usage api.php?i=2&user=<steemuseraccountwithout@> 
 
 require_once('inc/conf/db.php');
 date_default_timezone_set('UTC');
@@ -12,11 +13,14 @@ date_default_timezone_set('UTC');
 if(isset($_GET['i'])){
 	$i = $_GET['i'];
 	if($i == 1){ //// Curation Trail List
-		include('inc/api/list.php');
-	}
+		include('inc/api/trail_list.php');
+	} elseif ($i == 2){
+		include('inc/api/fan_list.php');
+    }
+	
 // room for addtional apis	
 }else{
-	echo "No Valid API method Selected";
+	echo "No valid API method selected.";
 }
 
 ?>	
