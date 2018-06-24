@@ -27,10 +27,12 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 		<?
 		if($i == 1){ //Curation Trail
 			$i = 1;
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `trailer`='$followed' AND `enable`=1)");
-			foreach($result as $x){
-				foreach($x as $x){}
-			}
+			$stmt = $conn->prepare("SELECT EXISTS(SELECT `weight`,`follower` FROM `followers` WHERE `trailer`=? AND `enable`=1)");
+			$stmt->bind_param('s', $followed);
+			$stmt->execute();
+			$stmt->bind_result($x);
+			$stmt->fetch();
+			$stmt->close();
 			if($x == 1){
 				$k = 1;
 				?>
@@ -48,15 +50,18 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 				  <tbody>
 
 				<?
-				$result = $conn->query("SELECT * FROM `followers` WHERE `trailer`='$followed' AND `enable`=1");
-				foreach($result as $c){
-					$weight = ($c['weight']/100).'%';
+				$stmt = $conn->prepare("SELECT `weight`,`follower` FROM `followers` WHERE `trailer`=? AND `enable`=1");
+				$stmt->bind_param('s', $followed);
+				$stmt->execute();
+				$stmt->bind_result($weight,$follower);
+				while($stmt->fetch()){
+					$weight = ($weight/100).'%';
 					?>
 
 
 					<tr class="tr2">
 						<td data-title="ID"><? echo $k; ?></td>
-						<td data-title="Name"><a href="https://steemit.com/@<? echo $c['follower']; ?>">@<? echo $c['follower']; ?></a></td>
+						<td data-title="Name"><a href="https://steemit.com/@<? echo $follower; ?>">@<? echo $follower; ?></a></td>
 						<td data-title="Status"><? echo $weight; ?></td>
 					</tr>
 
@@ -65,6 +70,7 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 					<?
 					$k = $k+1;
 				}
+				$stmt->close();
 				?>
 					</tbody>
 				</table>
@@ -76,10 +82,12 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 			}
 		}else{ // Fanbase
 			$i = 0;
-			$result = $conn->query("SELECT EXISTS(SELECT * FROM `fanbase` WHERE `fan`='$followed' AND `enable`=1)");
-			foreach($result as $x){
-				foreach($x as $x){}
-			}
+			$stmt = $conn->prepare("SELECT EXISTS(SELECT `weight`,`follower` FROM `fanbase` WHERE `fan`=? AND `enable`=1)");
+			$stmt->bind_param('s', $followed);
+			$stmt->execute();
+			$stmt->bind_result($x);
+			$stmt->fetch();
+			$stmt->close();
 			if($x == 1){
 				$k = 1;
 				?>
@@ -97,15 +105,18 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 				  <tbody>
 
 				<?
-				$result = $conn->query("SELECT * FROM `fanbase` WHERE `fan`='$followed' AND `enable`=1");
-				foreach($result as $c){
+				$stmt = $conn->prepare("SELECT `weight`,`follower` FROM `fanbase` WHERE `fan`=? AND `enable`=1");
+				$stmt->bind_param('s', $followed);
+				$stmt->execute();
+				$stmt->bind_result($weight,$follower);
+				while($stmt->fetch()){
 					?>
 
 
 					<tr class="tr2">
 						<td data-title="ID"><? echo $k; ?></td>
-						<td data-title="Name"><a href="https://steemit.com/@<? echo $c['follower']; ?>">@<? echo $c['follower']; ?></a></td>
-						<td data-title="Status"><? echo ($c['weight']/100).'%'; ?></td>
+						<td data-title="Name"><a href="https://steemit.com/@<? echo $follower; ?>">@<? echo $follower; ?></a></td>
+						<td data-title="Status"><? echo ($weight/100).'%'; ?></td>
 					</tr>
 
 
@@ -113,6 +124,7 @@ if(isset($_GET['user']) && $_GET['user'] !='' && isset($_GET['id']) && is_numeri
 					<?
 					$k = $k+1;
 				}
+				$stmt->close();
 				?>
 					</tbody>
 				</table>
