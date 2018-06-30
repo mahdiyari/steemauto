@@ -7,6 +7,8 @@
 // i = 2  json array of fanlist trail for a steemuser
 //        usage api.php?i=2&user=<steemuseraccountwithout@> 
 
+header('Access-Control-Allow-Origin: *');
+
 require_once('inc/conf/db.php');
 date_default_timezone_set('UTC');
 
