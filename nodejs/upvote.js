@@ -76,6 +76,11 @@ const server = http.createServer((req, res) => {
               reason: 'already voted'
             }))
           }
+        } else {
+          res.end(JSON.stringify({
+            result: 0,
+            reason: 'too old!'
+          }))
         }
       }).catch(err => {
         res.end(JSON.stringify({
