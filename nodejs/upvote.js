@@ -1,4 +1,4 @@
-const config = require('./steemauto/config')
+// const config = require('./steemauto/config')
 // const steem = require("steem");
 const dsteem = require('dsteem')
 const http = require('http')
@@ -6,19 +6,22 @@ const url = require('url')
 const hostname = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 7412
 // steem.api.setOptions({ url: config.rpc });
-const client = new dsteem.Client(config.rpchttp)
+const client = new dsteem.Client('http://127.0.0.1:8090')
 
 // We will handle upvotes by this function
 const upvote = async (wif, voter, author, permlink, weight) => {
-  let key = dsteem.PrivateKey.from(wif)
-  let vote = await client.broadcast.vote({
-    voter,
-    author,
-    permlink,
-    weight
-  }, key)
-  if (vote) return 1
-  else throw new Error('up failed')
+  try {
+    let key = dsteem.PrivateKey.from(wif)
+    await client.broadcast.vote({
+      voter,
+      author,
+      permlink,
+      weight
+    }, key)
+    return 1
+  } catch (e) {
+    return 0
+  }
 }
 
 // This server will receive wif, voter, author, permlink and weight
@@ -38,7 +41,7 @@ const server = http.createServer((req, res) => {
     // We will check voters and post date
     // We will skip already upvoted posts and posts older than 6.5 days
     client.database.call('get_content', [author, permlink])
-      .then(function (result) {
+      .then((result) => {
         let datee = new Date()
         let secondss = datee.getTime() / 1000
         let datee1 = new Date(result.created + 'Z')
@@ -55,31 +58,31 @@ const server = http.createServer((req, res) => {
           if (voted === 0) {
             upvote(wif, voter, author, permlink, weight)
               .then(result => {
-                res.status(200).json({
+                res.end(JSON.stringify({
                   result: 1,
                   reason: 'up done'
-                })
+                }))
               })
               .catch(err => {
-                res.status(200).json({
+                res.end(JSON.stringify({
                   result: 0,
                   reason: 'up fail',
                   err
-                })
+                }))
               })
           } else {
-            res.status(200).json({
+            res.end(JSON.stringify({
               result: 0,
               reason: 'already voted'
-            })
+            }))
           }
         }
       }).catch(err => {
-        res.status(200).json({
+        res.end(JSON.stringify({
           result: 0,
           reason: 'rpc node fail',
           err
-        })
+        }))
       })
   }
 })
