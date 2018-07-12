@@ -4,7 +4,7 @@ const mysql = require('mysql')
 const config = require('../config')
 // changed from connection to the pool
 const pool = mysql.createPool({
-  connectionLimit: 1000,
+  connectionLimit: 20000,
   host: config.db.host,
   user: config.db.user,
   password: config.db.pw,
