@@ -1,8 +1,8 @@
-import fetch from 'node-fetch'
+const fetch = require('node-fetch')
 // This method will send jsonrpc 2.0 requests to the appbase(now v0.19.10) nodes
 // This method will work with old rpc nodes, but needs to send right methods
 // This method will ignore any error! we can just check !result in the response
-exports.call = async (steemd, method, params) => {
+const call = async (steemd, method, params) => {
   try {
     const body = JSON.stringify({
       id: 0,
@@ -27,3 +27,5 @@ exports.call = async (steemd, method, params) => {
     return null
   }
 }
+
+module.exports = call
