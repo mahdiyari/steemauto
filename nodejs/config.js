@@ -12,4 +12,4 @@ config.steemd = 'https://steemd.steemitstage.com'
 config.rpchttp = 'http://127.0.0.1:8090'
 config.nodejssrv = 'http://127.0.0.1'
 
-export { config }
+module.exports = config
