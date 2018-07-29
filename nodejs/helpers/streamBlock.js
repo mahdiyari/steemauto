@@ -1,5 +1,5 @@
 import { call } from './nodeCall.js'
-import config from '../config'
+import { config } from '../config'
 
 export const streamBlockNumber = async (cb) => {
   let lastBlock = 0
