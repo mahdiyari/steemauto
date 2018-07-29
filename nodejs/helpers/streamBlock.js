@@ -1,7 +1,7 @@
-import { call } from './nodeCall.js'
-import { config } from '../config'
+const call = require('./nodeCall')
+const config = require('../config')
 
-export const streamBlockNumber = async (cb) => {
+const streamBlockNumber = async (cb) => {
   let lastBlock = 0
   setInterval(async () => {
     const result = await call(
@@ -18,7 +18,7 @@ export const streamBlockNumber = async (cb) => {
   }, 500)
 }
 
-export const streamBlockOperations = async (cb) => {
+const streamBlockOperations = async (cb) => {
   streamBlockNumber(async blockNumber => {
     const result = await call(
       config.steemd,
@@ -36,4 +36,9 @@ export const streamBlockOperations = async (cb) => {
       }
     }
   })
+}
+
+module.exports = {
+  streamBlockNumber,
+  streamBlockOperations
 }
