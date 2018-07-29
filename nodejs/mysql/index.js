@@ -1,10 +1,12 @@
-// creating a MySQL pool which will handle up to 1,000 connections
-// connections more than 1,000 will be added to the queue
+// creating a MySQL pool which will handle a limited connections
+// connections more than limitation will be added to the queue
 const mysql = require('mysql')
 const config = require('../config')
 // changed from connection to the pool
 const pool = mysql.createPool({
-  connectionLimit: 20000,
+  // we are using this pool in the many files
+  // assume we are using in the 10 files, so the actual limit will be (10 * connectionLimit)
+  connectionLimit: process.env.DB_LIMIT || 40,
   host: config.db.host,
   user: config.db.user,
   password: config.db.pw,
