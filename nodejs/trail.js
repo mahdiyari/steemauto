@@ -1,10 +1,9 @@
 const stream = require('./helpers/streamBlock')
 const call = require('./helpers/nodeCall')
+const upvote = require('./helpers/broadcastUpvote')
+const checkLimits = require('./helpers/checkLimits')
 const config = require('./config')
-const fetch = require('node-fetch')
 const con = require('./mysql')
-
-const wifkey = config.wifkey
 
 let trails = []
 
@@ -106,16 +105,13 @@ const trailupvote = async (userr, author, permlink, fweight) => {
             // to be upvoted later on the time by 'delay.js'
             let time = parseInt(nowseconds + (aftermin * 60))
             time = Math.floor(time)
-            await con.query(
-              'INSERT INTO `upvotelater`' +
-              '(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`)' +
-              'VALUES (?,?,?,?,?,"0",?)',
-              [follower, author, permlink, weight, time, userr]
-            )
+            upvoteLater(follower, author, permlink, weight, time, userr)
           } else {
             // User configured to vote just now
             // check limitations then broadcast upvote
-            checkpowerlimit(follower, author, permlink, weight, votingway, userr)
+            const result = await checkLimits(follower, author, permlink, weight)
+            // broadcast upvote if user detail is not limited
+            if (result) upvote(follower, author, permlink, weight)
           }
         }
       }
@@ -124,96 +120,13 @@ const trailupvote = async (userr, author, permlink, fweight) => {
     throw new Error(e)
   }
 }
-
-let tvfs
-let tvs
-const updateGlobals = async () => {
-  try {
-    // get dynamic global propertise for calculating total SP
-    // this works just with steemd (v0.19.10) not jussi
-    const result = await call(
-      config.steemd,
-      'condenser_api.get_dynamic_global_properties',
-      []
-    )
-    // on any possible error, call method will return null
-    if (!result) return 1
-    tvfs = parseInt(result.total_vesting_fund_steem.replace('STEEM', ''))
-    tvs = parseInt(result.total_vesting_shares.replace('VESTS', ''))
-  } catch (e) {
-    throw new Error(e)
-  }
-}
-updateGlobals()
-
-// update global props every 15 minutes
-setInterval(() => {
-  updateGlobals()
-}, 900000)
-
-// Check voting power limit and SP
-// then broadcasting upvote
-const checkpowerlimit = async (voter, author, permlink, weight, votingway, trailer) => {
-  try {
-    const results = await con.query(
-      'SELECT `limit_power` FROM `users` WHERE `user`=?',
-      [voter]
-    )
-    const powerlimit = results[0].limit_power
-    // get_accounts which work with just appbase (v0.19.10)
-    const result = await call(
-      config.steemd,
-      'condenser_api.get_accounts',
-      [
-        [voter]
-      ]
-    )
-    // on any possible error, call method will return null
-    if (!result) return 1
-    if (tvfs && tvs) {
-      // calculating voting power to check against limitation
-      const u = result[0]
-      const now = new Date()
-      const n = now.getTime() / 1000
-      const last = new Date(u.last_vote_time + 'z')
-      const l = last.getTime() / 1000
-      const power = u.voting_power / 100 + (parseFloat(n - l) / 4320)
-      let powernow = power.toFixed(2)
-      if (powernow > 100) powernow = 100
-      // calculating total account SP to check against limitation
-      const delegated = parseInt(u.delegated_vesting_shares.replace('VESTS', '')) // VESTS
-      const received = parseInt(u.received_vesting_shares.replace('VESTS', '')) // VESTS
-      const vesting = parseInt(u.vesting_shares.replace('VESTS', '')) // VESTS
-      const totalvest = vesting + received - delegated
-      let sp = totalvest * (tvfs / tvs)
-      sp = sp.toFixed(2)
-      if (powernow > powerlimit) {
-        // Don't broadcast upvote if effective upvote SP < 1.5
-        // This avoids low weight errors from rpc node and reduces calls
-        if (((powernow / 100) * (weight / 10000) * sp) > 1.5) {
-          upvote(voter, author, permlink, weight, votingway, trailer)
-        }
-      }
-    }
-  } catch (e) {
-    throw new Error(e)
-  }
-}
-
-// Upvote function for sending upvotes to another app to handle
-const upvote = async (voter, author, permlink, weight, votingway, trailer) => {
-  try {
-    // Upvoting server url for handling upvotes
-    const url = config.nodejssrv + ':7412/' +
-      '?wif=' + wifkey +
-      '&voter=' + voter +
-      '&author=' + author +
-      '&permlink=' + permlink +
-      '&weight=' + weight
-    await fetch(url)
-  } catch (e) {
-    throw new Error(e)
-  }
+const upvoteLater = async (follower, author, permlink, weight, time, userr) => {
+  await con.query(
+    'INSERT INTO `upvotelater`' +
+    '(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`)' +
+    'VALUES (?,?,?,?,?,"0",?)',
+    [follower, author, permlink, weight, time, userr]
+  )
 }
 
 console.log('Trail Started.')
