@@ -1,155 +1,119 @@
-const config = require('./config')
-var steem = require('steem')
-var mysql = require('mysql')
-var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
-var con = mysql.createConnection({
-  host: config.db.host,
-  user: config.db.user,
-  password: config.db.pw,
-  database: config.db.name,
-  charset: 'utf8mb4'
-})
-var wifkey = config.wifkey
+const stream = require('./helpers/streamBlock')
+const upvote = require('./helpers/broadcastUpvote')
+const checkLimits = require('./helpers/checkLimits')
+const con = require('./mysql')
 
-steem.api.setOptions({ url: config.rpc })
+let fans = []
 
-var users = []// fanbase
-var users1 = []// trailers
-var users2 = []// commentupvote
-con.query('SELECT `fan` FROM `fans` WHERE `followers`>0', function (error, results, fields) {
-  for (i in results) {
-    users.push(results[i].fan)
-  }
-})
+// we will store fans in the array
+// to check authors against this array by indexOf
+con.query('SELECT `fan` FROM `fans` WHERE `followers`>0')
+  .then(results => {
+    for (let i in results) {
+      fans.push(results[i].fan)
+    }
+  }).catch(e => {
+    throw new Error(e)
+  })
 
 // Updating Users List Every 10 Minutes
-setInterval(function () {
+setInterval(() => {
   try {
-    con.query('SELECT `fan` FROM `fans` WHERE `followers`>0', function (error, results, fields) {
-      var nusers = []
-      for (i in results) {
-        nusers.push(results[i].fan)
-      }
-      users = nusers
-    })
+    con.query('SELECT `fan` FROM `fans` WHERE `followers`>0')
+      .then(results => {
+        var nusers = []
+        for (let i in results) {
+          nusers.push(results[i].fan)
+        }
+        fans = nusers
+      })
   } catch (e) {
-    console.log('error in updating users' + e)
+    throw new Error(e)
   }
 }, 600000)
 
-var regex = /^re\-/
-var running
-var editregex = /^(\@\@+.+\@\@)/
+// we will use this regext to detect and skip edited posts
+const editRegex = /^(@@+.+@@)/
 
-// Streaming Blocks
-function startstream () {
-  steem.api.streamOperations(function (err2, blockops) {
-    if (!err2) {
-      running = 1
-      var op = blockops
-      if (op[0] == 'comment' && op[1].parent_author == '') {
-        if (users.indexOf(op[1].author) > -1) {
-          if ((op[1].body).match(editregex)) {
-            // console.log('edited post by '+op[1].author);
-          } else {
-            fanupvote(op[1].author, op[1].permlink)
-            console.log('fan post detected by: ' + op[1].author)
-          }
-        }
-      }
-      if (err2) {
-        console.log('err in streaming.')
-      }
-    }
-  })
-  return 1
-}
-startstream()
-
-// Checking if stream is running or not!
-// it seems failed! commenting for now
-/*
-setInterval(function(){
-	running = 0;
-	setTimeout(function(){
-		if(running == 0){
-			startstream();
-		}
-	},30000);
-},100000);
-*/
-// Check voting power limit
-function checkpowerlimit (voter, author, permlink, weight) {
-  con.query('SELECT `current_power`,`limit_power`,`sp` FROM `users` WHERE `user`="' + voter + '"', function (error, results, fields) {
-    for (i in results) {
-      var powernow = results[i].current_power
-      var powerlimit = results[i].limit_power
-      var sp = results[i].sp
-      if (powernow > powerlimit) {
-        if (((powernow / 100) * (weight / 10000) * sp) > 1.5) { // Don't broadcast upvote if sp*weight*power < 1.5
-          upvote(voter, author, permlink, weight)
-        } else {
-          // console.log('Low SP');
-        }
-      } else {
-        // console.log('power is under limit user '+voter);
-      }
-    }
-  })
-
-  return 1
-}
-// Upvote function - included 0 seconds delay!
-var delay = 0
-function upvote (voter, author, permlink, weight) {
-  var xmlhttp = new XMLHttpRequest()
-  xmlhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
-      if (JSON.parse(this.responseText).result == 1) {
-        console.log('up done')
-      } else {
-        console.log(JSON.parse(this.responseText).reason)
-      }
-    }
-  }
-  xmlhttp.open('GET', config.nodejssrv + ':7412/?wif=' + wifkey + '&voter=' + voter + '&author=' + author + '&permlink=' + permlink + '&weight=' + weight, true)
-  xmlhttp.send()
-
-  return 1
-}
-
-// Upvoting Fanbase Followers
-
-var fanupvote = function (author, permlink) {
+// Streaming blocks with custom methods
+const startstream = async () => {
   try {
-    var datee = new Date()
-    var secondss = datee.getTime() / 1000
-    con.query('SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` = "' + author + '" AND `enable`=1 AND `limitleft`>0', function (error, results, fields) {
-      for (i in results) {
-        var follower = results[i].follower
-        var weight = results[i].weight
-        var aftermin = results[i].aftermin
-        var datee = new Date()
-        var secondss = datee.getTime() / 1000
-        var now = Math.floor(secondss)
-        if (aftermin > 0) {
-          var time = parseInt(now + (aftermin * 60))
-          con.query('INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`) VALUES ("' + follower + '","' + author + '","' + permlink + '","' + weight + '","' + time + '","2")', function (error, results, fields) {})
-          con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="' + author + '" AND `follower`="' + follower + '"', function (error, results, fields) {})
-          console.log('fan to delay')
-        } else {
-          checkpowerlimit(follower, author, permlink, weight)
-          con.query('UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`="' + author + '" AND `follower`="' + follower + '"', function (error, results, fields) {})
-          console.log('fan to up')
+    stream.streamBlockOperations(async ops => {
+      if (ops) {
+        const op = ops[0]
+        // we will skip comments (comments have parent_author)
+        // we will detect only new posts
+        if (op[0] === 'comment' && op[1].parent_author === '') {
+          if (fans.indexOf(op[1].author) > -1) {
+            if (!(op[1].body).match(editRegex)) {
+              fanupvote(op[1].author, op[1].permlink)
+            }
+          }
         }
       }
     })
   } catch (e) {
-    console.log('error in fan upvote.' + e)
+    throw new Error(e)
+  }
+}
+startstream()
+
+// process upvotes for the Fanbase followers
+const fanupvote = async (author, permlink) => {
+  try {
+    const results = await con.query(
+      'SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` =? AND `enable`=1 AND `limitleft`>0',
+      [author]
+    )
+    for (let i in results) {
+      const follower = results[i].follower
+      const weight = results[i].weight
+      const aftermin = results[i].aftermin
+      const nowdate = new Date()
+      const nowsec = nowdate.getTime() / 1000
+      const now = Math.floor(nowsec)
+      if (aftermin > 0) {
+        // user requested to upvote post after a delay
+        // we will insert information to the database to upvote later (delay.js)
+        const time = parseInt(now + (aftermin * 60))
+        upvoteLater(follower, author, permlink, weight, time)
+        // update fanbase daily upvote limitaion in the database
+        updateDailyLimit(author, follower)
+      } else {
+        // we should process upvote right now
+        // first we will check limitations
+        const result = await checkLimits(follower, author, permlink, weight)
+        // broadcast upvote if user detail is not limited
+        if (result) upvote(follower, author, permlink, weight)
+        // update fanbase daily limitation in the database
+        updateDailyLimit(author, follower)
+      }
+    }
+  } catch (e) {
+    throw new Error(e)
   }
 }
 
-setInterval(function () {
-  con.query('SELECT 1', function (error, results, fields) {})
-}, 5000)
+const updateDailyLimit = async (author, follower) => {
+  try {
+    await con.query(
+      'UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`=? AND `follower`=?',
+      [author, follower]
+    )
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
+const upvoteLater = async (follower, author, permlink, weight, time) => {
+  try {
+    con.query(
+      'INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`, `trail_fan`) VALUES (?,?,?,?,?,"2")',
+      [follower, author, permlink, weight, time]
+    )
+  } catch (e) {
+    throw new Error(e)
+  }
+}
+
 console.log('Fan Started.')
