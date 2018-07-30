@@ -1,10 +1,7 @@
 const stream = require('./helpers/streamBlock')
-const call = require('./helpers/nodeCall')
-const config = require('./config')
-const fetch = require('node-fetch')
+const upvote = require('./helpers/broadcastUpvote')
+const checkLimits = require('./helpers/checkLimits')
 const con = require('./mysql')
-// const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest
-const wifkey = config.wifkey
 
 let fans = []
 
@@ -79,24 +76,17 @@ const fanupvote = async (author, permlink) => {
         // user requested to upvote post after a delay
         // we will insert information to the database to upvote later (delay.js)
         const time = parseInt(now + (aftermin * 60))
-        con.query(
-          'INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`, `trail_fan`) VALUES (?,?,?,?,?,"2")',
-          [follower, author, permlink, weight, time]
-        )
+        upvoteLater(follower, author, permlink, weight, time)
         // update fanbase daily upvote limitaion in the database
-        con.query(
-          'UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`=? AND `follower`=?',
-          [author, follower]
-        )
+        updateDailyLimit(author, follower)
       } else {
         // we should process upvote right now
         // first we will check limitations
-        checkpowerlimit(follower, author, permlink, weight)
+        const result = await checkLimits(follower, author, permlink, weight)
+        // broadcast upvote if user detail is not limited
+        if (result) upvote(follower, author, permlink, weight)
         // update fanbase daily limitation in the database
-        con.query(
-          'UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`=? AND `follower`=?',
-          [author, follower]
-        )
+        updateDailyLimit(author, follower)
       }
     }
   } catch (e) {
@@ -104,90 +94,23 @@ const fanupvote = async (author, permlink) => {
   }
 }
 
-let tvfs
-let tvs
-// Check voting power limit
-const updateGlobals = async () => {
+const updateDailyLimit = async (author, follower) => {
   try {
-    // get dynamic global propertise for just appbase! (v0.19.10)
-    // will need change in other version nodes
-    const result = await call(
-      config.steemd,
-      'condenser_api.get_dynamic_global_properties',
-      []
+    await con.query(
+      'UPDATE `fanbase` SET `limitleft`=`limitleft`-1 WHERE `fan`=? AND `follower`=?',
+      [author, follower]
     )
-    // on any error, result will be null
-    if (!result) return 1
-    tvfs = parseInt(result.total_vesting_fund_steem.replace('STEEM', ''))
-    tvs = parseInt(result.total_vesting_shares.replace('VESTS', ''))
-  } catch (e) {
-    throw new Error(e)
-  }
-}
-updateGlobals()
-setInterval(() => {
-  updateGlobals()
-}, 900000)
-
-// we will check limitations then broadcast upvote
-const checkpowerlimit = async (voter, author, permlink, weight) => {
-  try {
-    const results = await con.query(
-      'SELECT `limit_power` FROM `users` WHERE `user`=?',
-      [voter]
-    )
-    const powerlimit = results[0].limit_power
-    // Get accounts information from appbase (v0.19.10)
-    // will need change in other versions
-    const result = await call(
-      config.steemd,
-      'condenser_api.get_accounts',
-      [
-        [voter]
-      ]
-    )
-    // on any error, result will be null
-    if (!result) return 1
-    if (tvfs && tvs) {
-      // calculating voting power to check against limitation
-      const u = result[0]
-      const now = new Date()
-      const n = now.getTime() / 1000
-      const last = new Date(u.last_vote_time + 'z')
-      const l = last.getTime() / 1000
-      const power = u.voting_power / 100 + (parseFloat(n - l) / 4320)
-      let powernow = power.toFixed(2)
-      if (powernow > 100) powernow = 100
-      // calculating total SP to check against limitation
-      const delegated = parseInt(u.delegated_vesting_shares.replace('VESTS', '')) // VESTS
-      const received = parseInt(u.received_vesting_shares.replace('VESTS', '')) // VESTS
-      const vesting = parseInt(u.vesting_shares.replace('VESTS', '')) // VESTS
-      const totalvest = vesting + received - delegated
-      let sp = totalvest * (tvfs / tvs)
-      sp = sp.toFixed(2)
-      if (powernow > powerlimit) {
-        if (((powernow / 100) * (weight / 10000) * sp) > 1.5) {
-          // Don't broadcast upvote if sp*weight*power < 1.5
-          upvote(voter, author, permlink, weight)
-        }
-      }
-    }
   } catch (e) {
     throw new Error(e)
   }
 }
 
-// this function will send post and voter information to another app to upvote
-const upvote = async (voter, author, permlink, weight) => {
+const upvoteLater = async (follower, author, permlink, weight, time) => {
   try {
-    // Upvote server url for handling upvotes
-    const url = config.nodejssrv + ':7412/' +
-      '?wif=' + wifkey +
-      '&voter=' + voter +
-      '&author=' + author +
-      '&permlink=' + permlink +
-      '&weight=' + weight
-    await fetch(url)
+    con.query(
+      'INSERT INTO `upvotelater`(`voter`, `author`, `permlink`, `weight`, `time`, `trail_fan`) VALUES (?,?,?,?,?,"2")',
+      [follower, author, permlink, weight, time]
+    )
   } catch (e) {
     throw new Error(e)
   }
