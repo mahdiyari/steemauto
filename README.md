@@ -1,3 +1,7 @@
+# Development
+Project is under development (re-coding)
+We will use Angular 6 in the new release, branch: `steemauto-angular`
+  
 # steemauto
 steemauto.com - Curation Trail, Fanbase, Scheduled Posts, ... for Steemit.com Users.
 check @steemauto on steemit.com for more information about this project.
