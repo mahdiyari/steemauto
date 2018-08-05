@@ -1,12 +1,14 @@
 const call = require('./nodeCall')
 const config = require('../config')
+const isSteemd = 0
+// I used isSteemd to detect node version and pass right method to the rpc node
 
 const streamBlockNumber = async (cb) => {
   let lastBlock = 0
   setInterval(async () => {
     const result = await call(
-      config.steemd,
-      'condenser_api.get_dynamic_global_properties',
+      isSteemd ? config.steemd : config.rpc,
+      isSteemd ? 'condenser_api.get_dynamic_global_properties' : 'get_dynamic_global_properties',
       []
     )
     if (result && result.head_block_number && !isNaN(result.head_block_number)) {
@@ -21,8 +23,8 @@ const streamBlockNumber = async (cb) => {
 const streamBlockOperations = async (cb) => {
   streamBlockNumber(async blockNumber => {
     const result = await call(
-      config.steemd,
-      'condenser_api.get_block',
+      isSteemd ? config.steemd : config.rpc,
+      isSteemd ? 'condenser_api.get_block' : 'get_block',
       [blockNumber]
     )
     if (result) {
