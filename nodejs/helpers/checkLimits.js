@@ -6,6 +6,8 @@
 const call = require('./nodeCall')
 const config = require('../config')
 const con = require('../mysql')
+const isSteemd = config.isSteemd
+// we are using isSteemd to change methods for appbase and v0.19.5
 
 let tvfs
 let tvs
@@ -15,8 +17,8 @@ const updateGlobals = async () => {
     // get dynamic global propertise for just appbase! (v0.19.10)
     // will need change in other version nodes
     const result = await call(
-      config.steemd,
-      'condenser_api.get_dynamic_global_properties',
+      isSteemd ? config.steemd : config.rpc,
+      isSteemd ? 'condenser_api.get_dynamic_global_properties' : 'get_dynamic_global_properties',
       []
     )
     // on any error, result will be null
@@ -43,8 +45,8 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
     // Get accounts information from appbase (v0.19.10)
     // will need change in other versions
     const result = await call(
-      config.steemd,
-      'condenser_api.get_accounts',
+      isSteemd ? config.steemd : config.rpc,
+      isSteemd ? 'condenser_api.get_accounts' : 'get_accounts',
       [
         [voter]
       ]
