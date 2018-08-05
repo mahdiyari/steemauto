@@ -1,6 +1,6 @@
 const call = require('./nodeCall')
 const config = require('../config')
-const isSteemd = 0
+const isSteemd = config.isSteemd
 // I used isSteemd to detect node version and pass right method to the rpc node
 
 const streamBlockNumber = async (cb) => {
