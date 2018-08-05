@@ -4,6 +4,8 @@ const upvote = require('./helpers/broadcastUpvote')
 const checkLimits = require('./helpers/checkLimits')
 const config = require('./config')
 const con = require('./mysql')
+const isSteemd = config.isSteemd
+// we are using this variable to change methods according to the node version
 
 let trails = []
 
@@ -62,8 +64,8 @@ const trailupvote = async (userr, author, permlink, fweight) => {
   try {
     // get_content which works with just appbase (v0.19.10)
     const content = await call(
-      config.steemd,
-      'condenser_api.get_content',
+      isSteemd ? config.steemd : config.rpc,
+      isSteemd ? 'condenser_api.get_content' : 'get_content',
       [author, permlink]
     )
     // on any possible error, call method will return null
