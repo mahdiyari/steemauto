@@ -7,6 +7,8 @@ if(isset($_COOKIE['access_token'])){
 	curl_setopt($ch, CURLOPT_URL, $x);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: $access_token"));
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10); //timeout in seconds 
 	$result = curl_exec($ch);
 	if(!json_decode($result)->error && json_decode($result)->user){
 		$name = json_decode($result)->user;
