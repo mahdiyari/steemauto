@@ -58,35 +58,77 @@ const startstream = async () => {
 }
 startstream()
 
+// Pool of indexes
+// with help of this indexex, we will store recent posts to a variable
+// to prevent multiple in a row upvotes
+let index = 0
+let maxIndex = 500
+const authorIndex = () => {
+  if (index < maxIndex) index += 1
+  else index = 0
+  return index
+}
+const recentAuthors = []
+
+// this function will return true if the author's recent post was older than 4 minutes
+// this will help us to prevent abusers from submitting edit posts in a row
+const checkAuthor = (user) => {
+  const nowdate = new Date()
+  const nowsec = nowdate.getTime() / 1000
+  const now = Math.floor(nowsec)
+  const authors = recentAuthors.map(data => data.author)
+  const index = authors.indexOf(user)
+  if (index > -1) {
+    if (now - recentAuthors[index].date > 240) {
+      recentAuthors[authorIndex()] = {
+        author: user,
+        date: now
+      }
+      return true
+    } else {
+      return false
+    }
+  } else {
+    recentAuthors[authorIndex()] = {
+      author: user,
+      date: now
+    }
+    return true
+  }
+}
+
 // process upvotes for the Fanbase followers
 const fanupvote = async (author, permlink) => {
   try {
-    const results = await con.query(
-      'SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` =? AND `enable`=1 AND `limitleft`>0',
-      [author]
-    )
-    for (let i in results) {
-      const follower = results[i].follower
-      const weight = results[i].weight
-      const aftermin = results[i].aftermin
-      const nowdate = new Date()
-      const nowsec = nowdate.getTime() / 1000
-      const now = Math.floor(nowsec)
-      if (aftermin > 0) {
-        // user requested to upvote post after a delay
-        // we will insert information to the database to upvote later (delay.js)
-        const time = parseInt(now + (aftermin * 60))
-        upvoteLater(follower, author, permlink, weight, time)
-        // update fanbase daily upvote limitaion in the database
-        updateDailyLimit(author, follower)
-      } else {
-        // we should process upvote right now
-        // first we will check limitations
-        const result = await checkLimits(follower, author, permlink, weight)
-        // broadcast upvote if user detail is not limited
-        if (result) upvote(follower, author, permlink, weight)
-        // update fanbase daily limitation in the database
-        updateDailyLimit(author, follower)
+    // check author's recent post date
+    if (checkAuthor(author)) {
+      const results = await con.query(
+        'SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` =? AND `enable`=1 AND `limitleft`>0',
+        [author]
+      )
+      for (let i in results) {
+        const follower = results[i].follower
+        const weight = results[i].weight
+        const aftermin = results[i].aftermin
+        const nowdate = new Date()
+        const nowsec = nowdate.getTime() / 1000
+        const now = Math.floor(nowsec)
+        if (aftermin > 0) {
+          // user requested to upvote post after a delay
+          // we will insert information to the database to upvote later (delay.js)
+          const time = parseInt(now + (aftermin * 60))
+          upvoteLater(follower, author, permlink, weight, time)
+          // update fanbase daily upvote limitaion in the database
+          updateDailyLimit(author, follower)
+        } else {
+          // we should process upvote right now
+          // first we will check limitations
+          const result = await checkLimits(follower, author, permlink, weight)
+          // broadcast upvote if user detail is not limited
+          if (result) upvote(follower, author, permlink, weight)
+          // update fanbase daily limitation in the database
+          updateDailyLimit(author, follower)
+        }
       }
     }
   } catch (e) {
