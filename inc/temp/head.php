@@ -193,7 +193,7 @@ require_once('inc/dep/login_register.php');
 					document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 				}
 				function logout(){
-					setCookie('access_token','',0);
+					callApi('https://steemauto.com/api/v1/logout','')
 					window.location="/";
 				}
 			</script>
