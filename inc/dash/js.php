@@ -29,8 +29,8 @@ function callApi(url, body){
 			}
 		}
 	}
-	xmlhttp.open("POST", url, true)
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+	xmlhttp.open('POST', url, true)
+	xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
 	xmlhttp.send(body)
 
 	return 1
@@ -44,9 +44,9 @@ function unfollow(user){ //unfollow a trail
 	callApi('api/v1/dashboard/curation_trail/unfollow', 'trail=' + encodeURIComponent(user))
 	return 1
 }
-let recent
-let recentl
-let ne
+let recent = null
+let recentl = null
+let ne = null
 function showset(i){ //show settings
 	ne = '#set' + i
 	if(recent !== null && recent !== ne){
@@ -84,11 +84,11 @@ function settings(user){ //settings for trail
 	} else {
 		enable = 0
 	}
-	const body = "trail=" + encodeURIComponent(user) +
-		"&weight=" + encodeURIComponent(weight) +
-		"&minute=" + encodeURIComponent(minute) +
-		"&votingway=" + encodeURIComponent(votingway) +
-		"&enable=" + encodeURIComponent(enable)
+	const body = 'trail=' + encodeURIComponent(user) +
+		'&weight=' + encodeURIComponent(weight) +
+		'&minute=' + encodeURIComponent(minute) +
+		'&votingway=' + encodeURIComponent(votingway) +
+		'&enable=' + encodeURIComponent(enable)
 	
 	callApi('api/v1/dashboard/curation_trail/settings', body)
 	return 1
@@ -136,11 +136,11 @@ function settings1(user){ //settings for a fan
 	} else {
 		enable = 0
 	}
-	const body = "fan=" + encodeURIComponent(user) +
-		"&weight=" + encodeURIComponent(weight) +
-		"&minute=" + encodeURIComponent(minute) +
-		"&enable=" + encodeURIComponent(enable) +
-		"&dailylimit=" + encodeURIComponent(dailylimit)
+	const body = 'fan=' + encodeURIComponent(user) +
+		'&weight=' + encodeURIComponent(weight) +
+		'&minute=' + encodeURIComponent(minute) +
+		'&enable=' + encodeURIComponent(enable) +
+		'&dailylimit=' + encodeURIComponent(dailylimit)
 
 	callApi('api/v1/dashboard/fanbase/settings', body)
 	return 1
@@ -170,9 +170,9 @@ function post(){
 		}
 		tags = encodeURIComponent(tags)
 
-		const body = "date=" + date +
-			"&title=" + title +
-			"&content=" + content +
+		const body = 'date=' + date +
+			'&title=' + title +
+			'&content=' + content +
 			'&rewardstype=' + rewardstype +
 			'&upvotepost=' + upvotepost +
 			'&tags=' + JSON.stringify(arrtags)
@@ -186,228 +186,56 @@ function deletepost(id){
 	return 1
 }
 function addusertolist(){
-	$('.btn').attr('disabled','true');
-	var user = document.getElementById('username').value;
-	var minute = document.getElementById('aftertime').value;
-	var weight = document.getElementById('weight').value;
-	if(minute == '' || minute == null){
-		minute = 0;
+	const user = document.getElementById('username').value
+	let minute = document.getElementById('aftertime').value
+	let weight = document.getElementById('weight').value
+	if (minute === '' || minute === null) {
+		minute = 0
 	}
-	if(weight == '' || weight == null){
-		weight = 100;
+	if (weight === '' || weight === null) {
+		weight = 100
 	}
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			if(this.responseText == 1){
-				$.notify({
-					icon: 'pe-7s-check',
-					message: "User Successfully Added!"
-				},{
-					type: 'success',
-					timer: 6000
-				});
-				location.reload();
-			}else if(this.responseText == 2){
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Already Added!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}else if(this.responseText == 4){
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Username is not Valid!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}else{
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Unknown Error!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}
-
-		}
-	};
-	xmlhttp.open("POST", "dash.php?i=13", true);
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute);
-
-	return 1;
+	const body = 'user=' + encodeURIComponent(user) +
+		'&weight=' + encodeURIComponent(weight) +
+		'&minute=' + encodeURIComponent(minute)
+	callApi('api/v1/dashboard/comment_upvote/add', body)
+	return 1
 }
 function removeuserfromlist(user){
-	$('.btn').attr('disabled','true');
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-
-			if(this.responseText == 1){
-				$.notify({
-					icon: 'pe-7s-check',
-					message: "Successfully Removed!"
-				},{
-					type: 'success',
-					timer: 6000
-				});
-				location.reload();
-			}else if(this.responseText == 2){
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Already Removed!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}else{
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Unknown Error!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}
-
-		}
-	};
-	xmlhttp.open("POST", "dash.php?i=133", true);
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("user="+user);
-
-	return 1;
+	callApi('api/v1/dashboard/comment_upvote/delete', 'user=' + encodeURIComponent(user))
+	return 1
 }
 
 function commentupvotesettings(user){
-	$('.btn').attr('disabled','true');
-	var minute = document.getElementById('aftermin'+user).value;
-	var weight = document.getElementById('weight'+user).value;
-	if(minute == '' || minute == null){
-		minute = 0;
+	let minute = document.getElementById('aftermin' + user).value
+	let weight = document.getElementById('weight' + user).value
+	if (minute === '' || minute === null) {
+		minute = 0
 	}
-	if(weight == '' || weight == null){
-		weight = 100;
+	if (weight === '' || weight === null) {
+		weight = 100
 	}
-	var enable;
-	if(document.getElementById('enable'+user).checked){
-		enable = 1;
-	}else{
-		enable = 0;
+	let enable
+	if(document.getElementById('enable' + user).checked) {
+		enable = 1
+	} else {
+		enable = 0
 	}
-
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-
-			if(this.responseText == 1){
-				$.notify({
-					icon: 'pe-7s-check',
-					message: "Changes Successfully Saved!"
-				},{
-					type: 'success',
-					timer: 6000
-				});
-				location.reload();
-			}else{
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Unknown Error!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}
-
-		}
-	};
-	xmlhttp.open("POST", "dash.php?i=14", true);
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable);
-
-	return 1;
+	const body = 'user=' + encodeURIComponent(user) +
+		'&weight=' + encodeURIComponent(weight) +
+		'&minute=' + encodeURIComponent(minute) +
+		'&enable=' + encodeURIComponent(enable)
+	callApi('api/v1/dashboard/comment_upvote/settings', body)
+	return 1
 }
 
-function enableclaimreward(user){
-	$('.btn').attr('disabled','true');
-
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-
-			if(this.responseText == 1){
-				$.notify({
-					icon: 'pe-7s-check',
-					message: "Changes Successfully Saved!"
-				},{
-					type: 'success',
-					timer: 6000
-				});
-				location.reload();
-			}else{
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Unknown Error!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}
-
-		}
-	};
-	xmlhttp.open("POST", "dash.php?i=16", true);
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("enable=1");
-
-	return 1;
+function enableclaimreward(){
+	callApi('api/v1/dashboard/claim_reward/toggle')
+	return 1
 }
-function disableclaimreward(user){
-	$('.btn').attr('disabled','true');
-
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-
-			if(this.responseText == 1){
-				$.notify({
-					icon: 'pe-7s-check',
-					message: "Changes Successfully Saved!"
-				},{
-					type: 'success',
-					timer: 6000
-				});
-				location.reload();
-			}else{
-				$.notify({
-					icon: 'pe-7s-attention',
-					message: "Unknown Error!"
-				},{
-					type: 'danger',
-					timer: 6000
-				});
-				$('.btn').removeAttr('disabled');
-			}
-
-		}
-	};
-	xmlhttp.open("POST", "dash.php?i=16", true);
-	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.send("disable=1");
-
-	return 1;
+function disableclaimreward(){
+	callApi('api/v1/dashboard/claim_reward/toggle')
+	return 1
 }
 
 
