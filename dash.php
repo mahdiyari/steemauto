@@ -149,8 +149,54 @@ foreach($result as $x){
 					<center>
 						<h4 style="border-bottom:1px solid #000; padding-bottom:10px;">Settings</h4>
 					</center>
-					<strong>Upvoting status:</strong><? if($powernow<$powerlimit){echo '<span style="color:red;"> Paused</span>';}else{echo '<span style="color:green;"> Normal</span>';} ?><br>
-					<strong>Voting power:</strong><span> <? if(!$powernow){echo $powernow1; }else{echo $powernow;} ?>%</span><br>
+					<strong>Upvoting status:</strong>
+						<span id="upvoting_status"></span>
+					<br>
+					<strong>Voting power:</strong>
+						<span id="voting_power"></span>
+					<br>
+					<script>
+						function callNode(method, params, cb){
+							const body = JSON.stringify({
+								"jsonrpc": "2.0",
+								"method": method,
+								"params": [params],
+								"id": 1
+							})
+							const xmlhttp = new XMLHttpRequest()
+							xmlhttp.onreadystatechange = function() {
+								if (this.readyState == 4 && this.status == 200) {
+									cb(JSON.parse(this.responseText).result)
+								}
+							}
+							xmlhttp.open('POST', 'https://api.steemit.com', true)
+							xmlhttp.setRequestHeader('Content-type', 'application/json')
+							xmlhttp.send(body)
+
+							return 1
+						}
+						callNode('get_accounts',['<? echo $user; ?>'], function (result){
+							var userAcc = result[0]
+							var us = document.getElementById('upvoting_status')
+							var vp = document.getElementById('voting_power')
+							var now = new Date()
+							var n = now.getTime() / 1000
+							var last = new Date(userAcc.last_vote_time + 'Z')
+							var l = last.getTime() / 1000
+							var power = userAcc.voting_power / 100 + (parseFloat(n - l) / 4320)
+							let powernow = power.toFixed(2)
+							if (powernow > 100) powernow = 100
+							vp.innerHTML = powernow + '%'
+							if (powernow < <? echo $powerlimit; ?>) {
+								us.innerHTML = 'Paused'
+								us.style.color = 'red'
+							} else {
+								us.innerHTML = 'Normal'
+								us.style.color = 'green'
+							}
+						})
+						
+					</script>
 					<strong>Limit on voting power:</strong><span> <? echo $powerlimit; ?>% <a onclick="$('#limitpower').toggle(500)">(Click to edit)</a></span><br>
 					<form id="limitpower" style="display:none;" onsubmit="if(!confirm('Are you sure?')) return false;" method="post">
 						<label for="powerlimit">Voting power limit (%):</label>
@@ -158,7 +204,6 @@ foreach($result as $x){
 						<input style="margin-top:5px;" type="submit" value="submit" class="btn btn-primary">
 					</form><br>
 					<p>All your upvotes will be paused if your voting power is lower than the voting power limit.</p>
-					<p>Your voting power will updated every 5 minutes.</p>
 					<p>Read more about voting power in the Steemit FAQ.</p>
 					<p>You can check your voting power here: <a href="https://steemd.com/@<? echo $name; ?>">https://steemd.com/@<? echo $name; ?></a></p>
 

@@ -193,8 +193,28 @@ require_once('inc/dep/login_register.php');
 					document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 				}
 				function logout(){
-					callApi('https://steemauto.com/api/v1/logout','')
-					window.location="/";
+					$('.btn').attr('disabled','true')
+					const xmlhttp = new XMLHttpRequest()
+					xmlhttp.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200) {
+							if (JSON.parse(this.responseText).id == 1) {
+								window.location="/";
+							} else {
+								$.notify({
+									icon: 'pe-7s-attention',
+									message: JSON.parse(this.responseText).error
+								},{
+									type: 'danger',
+									timer: 8000
+								})
+								$('.btn').removeAttr('disabled')
+							}
+						}
+					}
+					xmlhttp.open('POST', 'https://steemauto.com/api/v1/logout', true)
+					xmlhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+					xmlhttp.send('')
+					return 1
 				}
 			</script>
 			<style>
