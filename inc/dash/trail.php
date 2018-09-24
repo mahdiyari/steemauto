@@ -1,3 +1,15 @@
+<style>
+	.action-icon{
+		font-size: 28px;
+		cursor: pointer;
+	}
+	.action-config-icon{
+		color: blue;
+	}
+	.action-close-icon{
+		color: red;
+	}
+</style>
 <?php
 
 if(isset($_GET['p']) && is_numeric($_GET['p']) && $_GET['p'] >0){
@@ -104,37 +116,13 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 		for(var i=0, n=checkboxes.length;i<n;i++) {
 			if(checkboxes[i].checked){
 				var user = checkboxes[i].id;
-				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						if(this.responseText == 1){
-							$.notify({
-								icon: 'pe-7s-check',
-								message: "Changes Successfully Saved."
-							},{
-								type: 'success',
-								timer: 1000
-							});
-							setTimeout(function(){
-								location.reload();
-							},1000);
-						}else{
-							$.notify({
-								icon: 'pe-7s-attention',
-								message: "Unknown Error!"
-							},{
-								type: 'danger',
-								timer: 1000
-							});
-							setTimeout(function(){
-								$('.btn').removeAttr('disabled');
-							},1000);
-						}
-					}
-				};
-				xmlhttp.open("POST", "dash.php?i=5", true);
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&votingway="+votingway+"&enable="+enable);
+				const body = 'trail=' + encodeURIComponent(user) +
+					'&weight=' + encodeURIComponent(weight) +
+					'&minute=' + encodeURIComponent(minute) +
+					'&votingway=' + encodeURIComponent(votingway) +
+					'&enable=' + encodeURIComponent(enable)
+				
+				callApi('api/v1/dashboard/curation_trail/settings', body)
 			}
 		}
 		return 1;
@@ -179,6 +167,7 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 							$stmt->execute();
 							$result = $stmt->get_result();
 							$row = $result->fetch_assoc();
+							$stmt->close();
 							foreach($row as $exists){}
 							if($exists == 1){
 								$stmt = $conn->prepare("SELECT * FROM `trailers` WHERE `user`=?");
@@ -186,10 +175,13 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 								$stmt->execute();
 								$result = $stmt->get_result();
 								$row = $result->fetch_assoc();
-								$resultt = $conn->query("SELECT EXISTS(SELECT * FROM `followers` WHERE `follower` = '$name' AND `trailer`='$searchedtrail')");
-								foreach($resultt as $y){
-									foreach($y as $y){}
-								}
+								$stmt->close();
+								$stmt = $conn->prepare("SELECT EXISTS(SELECT * FROM `followers` WHERE `follower` =? AND `trailer`=?)");
+								$stmt->bind_param('ss',$name,$searchedtrail);
+								$stmt->execute();
+								$stmt->bind_result($y);
+								$stmt->fetch();
+								$stmt->close();
 								if($y == 1){
 									$alreadyfollowed = 1;
 								}else{
@@ -204,8 +196,14 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $row['user']; ?>');};" class="btn btn-danger" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>UNFOLLOW</button>
 									<button onclick="showset('1');" class="btn btn-primary" <? if($row['user'] == $name){echo 'disabled="disabled"';} ?>>Settings</button>
 									<?
-									$resultt = $conn->query("SELECT * FROM `followers` WHERE `follower` = '$name' AND `trailer`='$searchedtrail'");
-									foreach($resultt as $n){}
+
+									$stmt = $conn->prepare("SELECT * FROM `followers` WHERE `follower` =? AND `trailer`=?");
+									$stmt->bind_param('ss',$name,$searchedtrail);
+									$stmt->execute();
+									$result = $stmt->get_result();
+									$n = $result->fetch_assoc();
+
+
 									?>
 									<!-- Settings -->
 									<div class="row" style="margin:0 !important;">
@@ -276,19 +274,41 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 <div class="row" style="margin:0 !important"> <!-- 2 -->
 <div class="col-md-3"></div>
 <div class="col-md-6"> <!-- 3 -->
-<div class="card"> <!-- 4 -->
-<div class="content"> <!-- 5 -->
-<h3>Welcome <? echo $name; ?>,</h3><br>
-Here you can view a list of existing curation trails and follow them.<br>
-Following a curation trail means that you will automatically upvote each post that the trail upvotes.<br>
-If you don't want to follow a trail you can also: <a style="margin:5px;" class="btn btn-success" onclick="showbecome();">create/edit your curation trail</a><form style="display:none;" id="become" onsubmit="become(); return false;">
-<label>Short Description:(max 100 character)</label>
-<textarea id="description" placeholder="For example: I'm voting only for good posts." name="description" type="text" class="form-control" required>
-</textarea>
-<input style="margin-top:10px;"value="Submit" type="submit" class="btn btn-primary">
-</form>
-</div> <!-- /5 -->
-</div> <!-- /4 -->
+	<div class="card"> <!-- 4 -->
+		<div class="content"> <!-- 5 -->
+			<h3>Welcome <? echo $name; ?>,</h3><br>
+			Here you can view a list of existing curation trails and follow them.<br>
+			Following a curation trail means that you will automatically upvote each post that the trail upvotes.<br>
+			If you don't want to follow a trail you can also: <a style="margin:5px;" class="btn btn-success" onclick="showbecome();">create/edit your curation trail</a>
+			<form style="display:none;" id="become" onsubmit="become(); return false;">
+				<label>Short Description:(max 100 character)</label>
+				<textarea id="description" placeholder="For example: I'm voting only for good posts." name="description" type="text" class="form-control" required>
+				</textarea>
+				<input style="margin-top:10px;"value="Submit" type="submit" class="btn btn-primary">
+			</form>
+			<?
+				$result = $conn->query("SELECT EXISTS(SELECT `user` FROM `trailers` WHERE `user`='$name')");
+				foreach($result as $x){
+					foreach($x as $x){}
+				}
+				if ($x == 1) {
+					$result = $conn->query("SELECT `enable` FROM `trailers` WHERE `user`='$name'");
+					foreach($result as $x){
+						$ts = $x['enable'];
+					}
+			?>
+					<div>
+						<hr style="margin:0">
+						<h4>Trail options:</h4>
+						<p>Since you are a trail, you can pause your trail to not receive upvotes after your upvotes. Pause/Resume may take up to 10 minutes.</p>
+						<br>
+						Status: <? if($ts) {echo '<span style="color:green">Enable</span>';}else{echo '<span style="color:red">Paused</span>';} ?>
+						<br>
+						<button onclick="updateTrail();" class="btn <? if($ts){echo 'btn-danger'; $txt='Pause';}else{echo 'btn-success'; $txt='Resume';} ?>"><? echo $txt; ?></button>
+					</div>
+		<? } ?>
+		</div> <!-- /5 -->
+	</div> <!-- /4 -->
 </div> <!-- /3 -->
 <div class="col-md-3"></div>
 </div> <!-- /2 -->
@@ -354,10 +374,10 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 											$method = 'Fixed <abbr data-toggle="tooltip" title="Read FAQ">?</abbr>';
 										}
 										if($n['enable'] == 0){
-											$status = '<b style="color:red;">Disabled <abbr data-toggle="tooltip" title="if it is Auto Disabled, Voting Weight is Too Small. Increase Voting Weight to Enable.">?</abbr></b>';
+											$status = '<i style="color:red; font-size:24px;" title="Disabled" class="pe-7s-less"></i>';
 											$enb =0;
 										}else{
-											$status = '<b style="color:green;">Enabled</b>';
+											$status = '<i style="color:green; font-size:24px;" title="Enabled" class="pe-7s-check"></i>';
 											$enb =1;
 										}
 							?>
@@ -373,8 +393,8 @@ If you don't want to follow a trail you can also: <a style="margin:5px;" class="
 									<td data-title="Status"><? echo $status; ?></td>
 
 									<td data-title="Status">
-									<button data-toggle="modal" onclick="$('[id=\'myModal<? echo $b['user']; ?>\']').modal('show');" class="btn btn-primary">Settings</button>
-									<button onclick="if(confirm('Are you sure?')){unfollow('<? echo $b['user']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
+									<a title="Settings" data-toggle="modal" onclick="$('[id=\'myModal<? echo $b['user']; ?>\']').modal('show');" class="pe-7s-config action-icon action-config-icon"></a>
+									<a title="Delete" onclick="if(confirm('Are you sure?')){unfollow('<? echo $b['user']; ?>');};" class="pe-7s-close-circle action-icon action-close-icon"></a>
 									</td>
 								</tr>
 								<!-- Settings -->
