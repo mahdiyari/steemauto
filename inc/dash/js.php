@@ -238,5 +238,9 @@ function disableclaimreward(){
 	return 1
 }
 
+function updateTrail(){
+	callApi('api/v1/dashboard/curation_trail/update')
+	return 1
+}
 
 </script>
