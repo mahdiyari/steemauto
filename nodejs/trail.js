@@ -9,7 +9,7 @@ const isSteemd = config.isSteemd
 
 let trails = []
 
-con.query('SELECT `user` FROM `trailers` WHERE `followers`>0')
+con.query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
   .then(results => {
     for (let i in results) {
       trails.push(results[i].user)
@@ -21,7 +21,7 @@ con.query('SELECT `user` FROM `trailers` WHERE `followers`>0')
 
 // Updating Trails List Every 10 Minutes
 setInterval(() => {
-  con.query('SELECT `user` FROM `trailers` WHERE `followers`>0')
+  con.query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
     .then(results => {
       let busers = []
       for (let i in results) {
@@ -60,64 +60,73 @@ const startstream = async () => {
 startstream()
 
 // Process upvotes for the Curation Trail followers
+let i = 1
 const trailupvote = async (userr, author, permlink, fweight) => {
+  i++
+  if (i < 1) i = 1
   try {
-    // get_content which works with just appbase (v0.19.10)
-    const content = await call(
-      isSteemd ? config.steemd : config.rpc,
-      isSteemd ? 'condenser_api.get_content' : 'get_content',
-      [author, permlink]
-    )
-    // on any possible error, call method will return null
-    if (!content) return 1
-    const created = new Date(content.created + 'Z')
-    const createdtime = created.getTime() / 1000
-    const now = new Date()
-    const nowtime = now.getTime() / 1000
-    const nowseconds = Math.floor(nowtime)
-    // we will skip posts which are older than 6.5 days
-    if (nowtime - createdtime < 561600) {
-      // get list of all users who are following this trail and are enabled
-      const results = await con.query(
-        'SELECT `follower`,`weight`,`aftermin`,`votingway` FROM `followers`' +
-        'WHERE `trailer` =? AND `enable`="1"',
-        [userr]
+    setTimeout(async () => {
+      // get_content which works with just appbase (v0.19.10)
+      const content = await call(
+        isSteemd ? config.steemd : config.rpc,
+        isSteemd ? 'condenser_api.get_content' : 'get_content',
+        [author, permlink]
       )
-      for (let i in results) {
-        const follower = results[i].follower
-        // we will skip posts which are already upvoted by same voter (follower)
-        let voted = 0
-        for (let j in content['active_votes']) {
-          if (content['active_votes'][j].voter === follower) {
-            voted = 1
-            break
+      // on any possible error, call method will return null
+      if (!content) {
+        i--
+        return 1
+      }
+      const created = new Date(content.created + 'Z')
+      const createdtime = created.getTime() / 1000
+      const now = new Date()
+      const nowtime = now.getTime() / 1000
+      const nowseconds = Math.floor(nowtime)
+      // we will skip posts which are older than 6.5 days
+      if (nowtime - createdtime < 561600 && content.parent_author === '') {
+        // get list of all users who are following this trail and are enabled
+        const results = await con.query(
+          'SELECT `follower`,`weight`,`aftermin`,`votingway` FROM `followers`' +
+          'WHERE `trailer` =? AND `enable`="1"',
+          [userr]
+        )
+        for (let i in results) {
+          const follower = results[i].follower
+          // we will skip posts which are already upvoted by same voter (follower)
+          let voted = 0
+          for (let j in content['active_votes']) {
+            if (content['active_votes'][j].voter === follower) {
+              voted = 1
+              break
+            }
           }
-        }
-        if (voted === 0) {
-          let weight = results[i].weight
-          const aftermin = results[i].aftermin
-          const votingway = results[i].votingway
-          // change weight based on trail vote weight for followers who selected 'scale' method
-          if (votingway === 1) {
-            weight = parseInt((weight / 10000) * fweight)
-          }
-          if (aftermin > 0) {
-            // User configured to upvote after X minutes
-            // we will add information to the database
-            // to be upvoted later on the time by 'delay.js'
-            let time = parseInt(nowseconds + (aftermin * 60))
-            time = Math.floor(time)
-            upvoteLater(follower, author, permlink, weight, time, userr)
-          } else {
-            // User configured to vote just now
-            // check limitations then broadcast upvote
-            const result = await checkLimits(follower, author, permlink, weight)
-            // broadcast upvote if user detail is not limited
-            if (result) upvote(follower, author, permlink, weight)
+          if (voted === 0) {
+            let weight = results[i].weight
+            const aftermin = results[i].aftermin
+            const votingway = results[i].votingway
+            // change weight based on trail vote weight for followers who selected 'scale' method
+            if (votingway === 1) {
+              weight = parseInt((weight / 10000) * fweight)
+            }
+            if (aftermin > 0) {
+              // User configured to upvote after X minutes
+              // we will add information to the database
+              // to be upvoted later on the time by 'delay.js'
+              let time = parseInt(nowseconds + (aftermin * 60))
+              time = Math.floor(time)
+              upvoteLater(follower, author, permlink, weight, time, userr)
+            } else {
+              // User configured to vote just now
+              // check limitations then broadcast upvote
+              const result = await checkLimits(follower, author, permlink, weight)
+              // broadcast upvote if user detail is not limited
+              if (result) upvote(follower, author, permlink, weight)
+            }
           }
         }
       }
-    }
+      i--
+    }, i * 30)
   } catch (e) {
     throw new Error(e)
   }

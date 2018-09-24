@@ -1,3 +1,15 @@
+<style>
+	.action-icon{
+		font-size: 28px;
+		cursor: pointer;
+	}
+	.action-config-icon{
+		color: blue;
+	}
+	.action-close-icon{
+		color: red;
+	}
+</style>
 <?php
 
 if(isset($_GET['p']) && is_numeric($_GET['p']) && $_GET['p'] >0){
@@ -87,37 +99,13 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 		for(var i=0, n=checkboxes.length;i<n;i++) {
 			if(checkboxes[i].checked){
 				var user = checkboxes[i].id;
-				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						if(this.responseText == 1){
-							$.notify({
-								icon: 'pe-7s-check',
-								message: "Changes Successfully Saved!"
-							},{
-								type: 'success',
-								timer: 1000
-							});
-							setTimeout(function(){
-								location.reload();
-							},1000);
-						}else{
-							$.notify({
-								icon: 'pe-7s-attention',
-								message: "Unknown Error!"
-							},{
-								type: 'danger',
-								timer: 1000
-							});
-							setTimeout(function(){
-								$('.btn').removeAttr('disabled');
-							},1000);
-						}
-					}
-				};
-				xmlhttp.open("POST", "dash.php?i=10", true);
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-				xmlhttp.send("user="+user+"&weight="+weight+"&minute="+minute+"&enable="+enable+"&dailylimit="+dailylimit);
+				const body = 'fan=' + encodeURIComponent(user) +
+					'&weight=' + encodeURIComponent(weight) +
+					'&minute=' + encodeURIComponent(minute) +
+					'&enable=' + encodeURIComponent(enable) +
+					'&dailylimit=' + encodeURIComponent(dailylimit)
+
+				callApi('api/v1/dashboard/fanbase/settings', body)
 			}
 		}
 		return 1;
@@ -306,10 +294,10 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 										foreach($result as $n){
 											$nn = $n['fan'];
 											if($n['enable'] == 1){
-												$status = '<b style="color:green;">Enabled</b>';
+												$status = '<i style="color:green; font-size:24px;" title="Enabled" class="pe-7s-check"></i>';
 												$enb = 1;
 											}else{
-												$status = '<b style="color:red;">Disabled <abbr data-toggle="tooltip" title="if it is Auto Disabled, Voting Weight is Too Small. Increase Voting Weight to Enable.">?</abbr></b>';
+												$status = '<i style="color:red; font-size:24px;" title="Disabled" class="pe-7s-less"></i>';
 												$enb = 0;
 											}
 											$result = $conn->query("SELECT * FROM `fans` WHERE `fan` = '$nn'");
@@ -326,8 +314,8 @@ if(isset($_GET['fan']) && $_GET['fan'] != ''){
 													<td data-title="Status"><? echo $n['dailylimit'] ?></td>
 													<td data-title="Status"><? echo $status ?></td>
 													<td data-title="Status">
-														<button data-toggle="modal" onclick="$('[id=\'myModal<? echo $b['fan']; ?>\']').modal('show');" class="btn btn-primary">Settings</button>
-														<button onclick="if(confirm('Are you sure?')){unfollow1('<? echo $b['fan']; ?>');};" class="btn btn-danger">UNFOLLOW</button>
+														<a title="Settings" data-toggle="modal" onclick="$('[id=\'myModal<? echo $b['fan']; ?>\']').modal('show');" class="pe-7s-config action-icon action-config-icon"></a>
+														<a title="Delete" onclick="if(confirm('Are you sure?')){unfollow1('<? echo $b['fan']; ?>');};" class="pe-7s-close-circle action-icon action-close-icon"></a>
 													</td>
 												</tr>
 

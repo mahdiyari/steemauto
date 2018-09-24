@@ -175,7 +175,7 @@ foreach($result as $x){
 
 							return 1
 						}
-						callNode('get_accounts',['<? echo $user; ?>'], function (result){
+						callNode('get_accounts',['<? echo $name; ?>'], function (result){
 							var userAcc = result[0]
 							var us = document.getElementById('upvoting_status')
 							var vp = document.getElementById('voting_power')
