@@ -179,15 +179,16 @@ foreach($result as $x){
 							var userAcc = result[0]
 							var us = document.getElementById('upvoting_status')
 							var vp = document.getElementById('voting_power')
-							var now = new Date()
-							var n = now.getTime() / 1000
-							var last = new Date(userAcc.last_vote_time + 'Z')
-							var l = last.getTime() / 1000
-							var power = userAcc.voting_power / 100 + (parseFloat(n - l) / 4320)
-							let powernow = power.toFixed(2)
-							if (powernow > 100) powernow = 100
-							vp.innerHTML = powernow + '%'
-							if (powernow < <? echo $powerlimit; ?>) {
+							var max_mana = Number(userAcc.max_rc)
+							var delta = Date.now() / 1000 - userAcc.rc_manabar.last_update_time
+							var current_mana = Number(userAcc.rc_manabar.current_mana) + (delta * max_mana / 432000)
+							var percentage = Math.round(current_mana / max_mana * 10000)
+							if (!isFinite(percentage)) percentage = 0
+							if (percentage > 10000) percentage = 10000
+							else if (percentage < 0) percentage = 0
+							var percent = (percentage / 100).toFixed(2)
+							vp.innerHTML = percent + '%'
+							if (percent < <? echo $powerlimit; ?>) {
 								us.innerHTML = 'Paused'
 								us.style.color = 'red'
 							} else {
@@ -197,15 +198,15 @@ foreach($result as $x){
 						})
 						
 					</script>
-					<strong>Limit on voting power:</strong><span> <? echo $powerlimit; ?>% <a onclick="$('#limitpower').toggle(500)">(Click to edit)</a></span><br>
+					<strong>Limit on Mana:</strong><span> <? echo $powerlimit; ?>% <a onclick="$('#limitpower').toggle(500)">(Click to edit)</a></span><br>
 					<form id="limitpower" style="display:none;" onsubmit="if(!confirm('Are you sure?')) return false;" method="post">
-						<label for="powerlimit">Voting power limit (%):</label>
+						<label for="powerlimit">Mana limitation (%):</label>
 						<input id="powerlimit" name="powerlimit" class="form-control" type="number" min="1" max="99" step="0.01" required>
 						<input style="margin-top:5px;" type="submit" value="submit" class="btn btn-primary">
 					</form><br>
-					<p>All your upvotes will be paused if your voting power is lower than the voting power limit.</p>
-					<p>Read more about voting power in the Steemit FAQ.</p>
-					<p>You can check your voting power here: <a href="https://steemd.com/@<? echo $name; ?>">https://steemd.com/@<? echo $name; ?></a></p>
+					<p>All your upvotes will be paused if your Mana is lower than the Mana limitation.</p>
+					<p>Read more about Mana in the Steemit FAQ.</p>
+					<p>You can check your Mana here: <a href="https://steemd.com/@<? echo $name; ?>">https://steemd.com/@<? echo $name; ?></a></p>
 
 				</div>
 			</div>
