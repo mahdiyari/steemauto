@@ -150,6 +150,7 @@ function post(){
 	const title = encodeURIComponent(document.getElementById('title').value)
 	const content = encodeURIComponent(document.getElementById('content').value)
 	const rewardstype = encodeURIComponent(document.getElementById('rewardstype').value)
+	const beneficiarytype = encodeURIComponent(document.getElementById('beneficiarytype').value)
 	let upvotepost = 1
 	if (document.getElementById('upvotepost').checked) {
 		upvotepost = 1
@@ -175,7 +176,8 @@ function post(){
 			'&content=' + content +
 			'&rewardstype=' + rewardstype +
 			'&upvotepost=' + upvotepost +
-			'&tags=' + JSON.stringify(arrtags)
+			'&tags=' + JSON.stringify(arrtags) +
+			'&beneficiarytype=' + beneficiarytype
 
 		callApi('api/v1/dashboard/schedule_post/submit', body)
 	}

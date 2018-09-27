@@ -18,6 +18,8 @@ label{
 				<div class="content">
 					<h3>Welcome <? echo $name; ?>,</h3><br>
 					This page is where you can schedule a post to publish in the future.
+					<br>
+					<span style="color:red;">Blockchain will not allow posting 2 times within 5 minutes. Leave at least 5 minutes between your posts.</span>
 
 					<form style="display:;" id="post" onsubmit="post(); return false;">
 						<!-- title -->
@@ -38,6 +40,19 @@ label{
 								<option value="0">Default (50% / 50%)</option>
 								<option value="1">Power Up 100%</option>
 								<option value="2">Decline Payout (no rewards)</option>
+							</select>
+						</label>
+						<br>
+						<!-- select beneficaries reward -->
+						<label for="beneficiarytype">Optional beneficiary <abbr data-toggle="tooltip" title="You can donate certain percent of your posts reward to the steemauto. Check FAQ">?</abbr> 
+							<select id="beneficiarytype" name="beneficiarytype">
+								<option value="0">None</option>
+								<option value="1" selected>1% @steemauto</option>
+								<option value="5">5% @steemauto</option>
+								<option value="10">10% @steemauto</option>
+								<option value="15">15% @steemauto</option>
+								<option value="20">20% @steemauto</option>
+								<option value="25">25% @steemauto</option>
 							</select>
 						</label>
 						<br>
