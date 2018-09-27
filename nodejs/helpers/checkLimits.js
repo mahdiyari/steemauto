@@ -1,21 +1,18 @@
 /**
  * This file will check limitations on the users
- * one limitation is configured voting power
+ * one limitation is configured Mana
  * and another limitation is effective SP of each upvote
  */
 const call = require('./nodeCall')
 const config = require('../config')
 const con = require('../mysql')
 const isSteemd = config.isSteemd
-// we are using isSteemd to change methods for appbase and v0.19.5
+// we are using isSteemd to change methods for appbase
 
 let tvfs
 let tvs
-// Check voting power limit
 const updateGlobals = async () => {
   try {
-    // get dynamic global propertise for just appbase! (v0.19.10)
-    // will need change in other version nodes
     const result = await call(
       isSteemd ? config.steemd : config.rpc,
       isSteemd ? 'condenser_api.get_dynamic_global_properties' : 'get_dynamic_global_properties',
@@ -42,8 +39,6 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
       [voter]
     )
     const powerlimit = results[0].limit_power
-    // Get accounts information from appbase (v0.19.10)
-    // will need change in other versions
     const result = await call(
       isSteemd ? config.steemd : config.rpc,
       isSteemd ? 'condenser_api.get_accounts' : 'get_accounts',
@@ -54,15 +49,16 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
     // on any error, result will be null
     if (!result) return null
     if (tvfs && tvs) {
-      // calculating voting power to check against limitation
+      // calculating Mana to check against limitation
       const u = result[0]
-      const now = new Date()
-      const n = now.getTime() / 1000
-      const last = new Date(u.last_vote_time + 'z')
-      const l = last.getTime() / 1000
-      const power = u.voting_power / 100 + (parseFloat(n - l) / 4320)
-      let powernow = power.toFixed(2)
-      if (powernow > 100) powernow = 100
+      let maxMana = Number(u.max_rc)
+      let delta = Date.now() / 1000 - u.rc_manabar.last_update_time
+      let currentMana = Number(u.rc_manabar.current_mana) + (delta * maxMana / 432000)
+      let percentage = Math.round(currentMana / maxMana * 10000)
+      if (!isFinite(percentage)) percentage = 0
+      if (percentage > 10000) percentage = 10000
+      else if (percentage < 0) percentage = 0
+      let powernow = (percentage / 100).toFixed(2)
       // calculating total SP to check against limitation
       const delegated = parseInt(u.delegated_vesting_shares.replace('VESTS', '')) // VESTS
       const received = parseInt(u.received_vesting_shares.replace('VESTS', '')) // VESTS
@@ -71,8 +67,8 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
       let sp = totalvest * (tvfs / tvs)
       sp = sp.toFixed(2)
       if (powernow > powerlimit) {
-        if (((powernow / 100) * (weight / 10000) * sp) > 1.5) {
-          // Don't broadcast upvote if sp*weight*power < 1.5
+        if (((powernow / 100) * (weight / 10000) * sp) > 3) {
+          // Don't broadcast upvote if sp*weight*power < 3
           return 1
         }
         return null
