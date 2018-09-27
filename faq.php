@@ -19,6 +19,7 @@ require_once('inc/temp/head.php');
 				<h3>How does SteemAuto work?</h3>
 				<p>Steemauto uses your account posting authority to post, upvote, and claim rewards for you automatically.</p>
 
+
 				<h3>What is posting authority?</h3>
 				<p>In the Steem blockchain, each account have different keys that let you access different parts of the account. One of these keys is the 'posting key' which can be used to post, comment, upvote, follow, and etc. When using a posting key you can't access an account's balances, so your funds are perfectly safe.</p>
 
@@ -52,6 +53,9 @@ require_once('inc/temp/head.php');
 				<h3>Will my upvotes be replaced if I manually upvoted a post?</h3>
 				<p>No. In other tools if you upvote any post twice with different upvote weights, the first upvote is overriden by the second upvote.
 				In the Steemauto this problem is fixed. You can upvote any post manually before applying auto upvotes and the manual vote will not be overriden.</p>
+
+				<h3>What is Optional benefiaciary in the schedule post?</h3>
+				<p>When you set @steemauto as a benefiaciary in your post, steem blockchain will send certain percent of your post reward to the @steemauto. This is optional and you can select between None (0%) and 25%.</p>
 
 				<h3>Any other question?</h3>
 				<p>Ask your questions from the <a href="/contact.php" target="_blank">Contact</a> page.</p>
