@@ -49,16 +49,7 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
     // on any error, result will be null
     if (!result) return null
     if (tvfs && tvs) {
-      // calculating Mana to check against limitation
       const u = result[0]
-      let maxMana = Number(u.max_rc)
-      let delta = Date.now() / 1000 - u.rc_manabar.last_update_time
-      let currentMana = Number(u.rc_manabar.current_mana) + (delta * maxMana / 432000)
-      let percentage = Math.round(currentMana / maxMana * 10000)
-      if (!isFinite(percentage)) percentage = 0
-      if (percentage > 10000) percentage = 10000
-      else if (percentage < 0) percentage = 0
-      let powernow = (percentage / 100).toFixed(2)
       // calculating total SP to check against limitation
       const delegated = parseInt(u.delegated_vesting_shares.replace('VESTS', '')) // VESTS
       const received = parseInt(u.received_vesting_shares.replace('VESTS', '')) // VESTS
@@ -66,6 +57,15 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
       const totalvest = vesting + received - delegated
       let sp = totalvest * (tvfs / tvs)
       sp = sp.toFixed(2)
+      // calculating Mana to check against limitation
+      let maxMana = Number(totalvest * Math.pow(10, 6))
+      let delta = Date.now() / 1000 - u.rc_manabar.last_update_time
+      let currentMana = Number(u.rc_manabar.current_mana) + (delta * maxMana / 432000)
+      let percentage = Math.round(currentMana / maxMana * 10000)
+      if (!isFinite(percentage)) percentage = 0
+      if (percentage > 10000) percentage = 10000
+      else if (percentage < 0) percentage = 0
+      let powernow = (percentage / 100).toFixed(2)
       if (powernow > powerlimit) {
         if (((powernow / 100) * (weight / 10000) * sp) > 3) {
           // Don't broadcast upvote if sp*weight*power < 3
