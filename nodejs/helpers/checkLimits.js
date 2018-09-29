@@ -59,8 +59,8 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
       sp = sp.toFixed(2)
       // calculating Mana to check against limitation
       let maxMana = Number(totalvest * Math.pow(10, 6))
-      let delta = Date.now() / 1000 - u.rc_manabar.last_update_time
-      let currentMana = Number(u.rc_manabar.current_mana) + (delta * maxMana / 432000)
+      let delta = Date.now() / 1000 - u.voting_manabar.last_update_time
+      let currentMana = Number(u.voting_manabar.current_mana) + (delta * maxMana / 432000)
       let percentage = Math.round(currentMana / maxMana * 10000)
       if (!isFinite(percentage)) percentage = 0
       if (percentage > 10000) percentage = 10000
