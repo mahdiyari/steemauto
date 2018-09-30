@@ -58,7 +58,14 @@ const checkpowerlimit = async (voter, author, permlink, weight) => {
       let sp = totalvest * (tvfs / tvs)
       sp = sp.toFixed(2)
       // calculating Mana to check against limitation
-      let maxMana = Number(totalvest * Math.pow(10, 6))
+      let withdrawRate = 0
+      if (parseInt(u.vesting_withdraw_rate.replace('VESTS', '')) > 0) {
+        withdrawRate = Math.min(
+          parseInt(u.vesting_withdraw_rate.replace('VESTS', '')),
+          parseInt((u.to_withdraw - u.withdrawn) / 1000000)
+        )
+      }
+      let maxMana = Number((totalvest - withdrawRate) * Math.pow(10, 6))
       let delta = Date.now() / 1000 - u.voting_manabar.last_update_time
       let currentMana = Number(u.voting_manabar.current_mana) + (delta * maxMana / 432000)
       let percentage = Math.round(currentMana / maxMana * 10000)

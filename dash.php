@@ -182,7 +182,14 @@ foreach($result as $x){
 							var delegated = parseInt(userAcc.delegated_vesting_shares.replace('VESTS', '')) // VESTS
 							var received = parseInt(userAcc.received_vesting_shares.replace('VESTS', '')) // VESTS
 							var vesting = parseInt(userAcc.vesting_shares.replace('VESTS', '')) // VESTS
-							var totalvest = vesting + received - delegated
+							var withdrawRate = 0
+							if (parseInt(userAcc.vesting_withdraw_rate.replace('VESTS', '')) > 0) {
+								withdrawRate = Math.min(
+									parseInt(userAcc.vesting_withdraw_rate.replace('VESTS', '')),
+									parseInt((userAcc.to_withdraw - userAcc.withdrawn) / 1000000)
+								)
+							}
+							var totalvest = vesting + received - delegated - withdrawRate
 							var maxMana = Number(totalvest * Math.pow(10, 6))
 							var delta = Date.now() / 1000 - userAcc.voting_manabar.last_update_time
 							var current_mana = Number(userAcc.voting_manabar.current_mana) + (delta * maxMana / 432000)
