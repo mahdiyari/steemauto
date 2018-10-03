@@ -9,25 +9,18 @@ steem.api.setOptions({ useAppbaseApi: true, url: config.steemd })
 // const client = new dsteem.Client('http://127.0.0.1:8090')
 
 // We will handle upvotes by this function
-let i = 1
 const upvote = async (wif, voter, author, permlink, weight) => {
-  i++
-  if (i < 1) i = 1
   try {
-    setTimeout(async () => {
-      // let key = dsteem.PrivateKey.from(wif)
-      await steem.broadcast.voteAsync(
-        wif,
-        voter,
-        author,
-        permlink,
-        weight
-      )
-      i--
-    }, 40 * i)
+    // let key = dsteem.PrivateKey.from(wif)
+    await steem.broadcast.voteAsync(
+      wif,
+      voter,
+      author,
+      permlink,
+      weight
+    )
     return 1
   } catch (e) {
-    i--
     return 0
   }
 }
@@ -106,7 +99,7 @@ const server = http.createServer((req, res) => {
           }))
         })
     }
-  }, k * 40)
+  }, k * 60)
 })
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`)
