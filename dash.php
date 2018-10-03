@@ -152,7 +152,7 @@ foreach($result as $x){
 					<strong>Upvoting status:</strong>
 						<span id="upvoting_status"></span>
 					<br>
-					<strong>Voting power:</strong>
+					<strong>Current Mana:</strong>
 						<span id="voting_power"></span>
 					<br>
 					<script>
