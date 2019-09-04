@@ -2,6 +2,7 @@ const stream = require('./helpers/streamBlock')
 const upvote = require('./helpers/broadcastUpvote')
 const checkLimits = require('./helpers/checkLimits')
 const con = require('./mysql')
+const shuffle = require('./helpers/shuffle')
 
 let fans = []
 
@@ -16,7 +17,7 @@ con.query('SELECT `fan` FROM `fans` WHERE `followers`>0')
     throw new Error(e)
   })
 
-// Updating Users List Every 10 Minutes
+// Updating Users List Every 5 Minutes
 setInterval(() => {
   try {
     con.query('SELECT `fan` FROM `fans` WHERE `followers`>0')
@@ -30,7 +31,7 @@ setInterval(() => {
   } catch (e) {
     throw new Error(e)
   }
-}, 600000)
+}, 300000)
 
 // we will use this regext to detect and skip edited posts
 const editRegex = /^(@@+.+@@)/
@@ -102,10 +103,11 @@ const fanupvote = async (author, permlink) => {
   try {
     // check author's recent post date
     if (checkAuthor(author)) {
-      const results = await con.query(
+      let results = await con.query(
         'SELECT `follower`,`weight`,`aftermin` FROM `fanbase` WHERE `fan` =? AND `enable`=1 AND `limitleft`>0',
         [author]
       )
+			results = shuffle(results)
       for (let i in results) {
         const follower = results[i].follower
         const weight = results[i].weight

@@ -4,12 +4,15 @@ const upvote = require('./helpers/broadcastUpvote')
 const checkLimits = require('./helpers/checkLimits')
 const config = require('./config')
 const con = require('./mysql')
+const shuffle = require('./helpers/shuffle')
+
 const isSteemd = config.isSteemd
 // we are using this variable to change methods according to the node version
 
 let trails = []
 
-con.query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
+con
+  .query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
   .then(results => {
     for (let i in results) {
       trails.push(results[i].user)
@@ -19,9 +22,10 @@ con.query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
     throw new Error(e)
   })
 
-// Updating Trails List Every 10 Minutes
+// Updating Trails List Every 5 Minutes
 setInterval(() => {
-  con.query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
+  con
+    .query('SELECT `user` FROM `trailers` WHERE `followers`>0 AND `enable`=1')
     .then(results => {
       let busers = []
       for (let i in results) {
@@ -32,7 +36,7 @@ setInterval(() => {
     .catch(e => {
       throw new Error(e)
     })
-}, 600000)
+}, 300000)
 
 // We will use this regex to detect and skip comments
 const regex = /^re-/
@@ -40,11 +44,15 @@ const regex = /^re-/
 // Streaming Blocks to detect trail upvotes on the posts
 // using custom streaming function
 const startstream = async () => {
-  stream.streamBlockOperations((ops) => {
+  stream.streamBlockOperations(ops => {
     const op = ops[0]
     if (op) {
       // we will process just posts and just upvotes (not downvotes)
-      if (op[0] === 'vote' && !op[1].permlink.match(regex) && op[1].weight > 0) {
+      if (
+        op[0] === 'vote' &&
+        !op[1].permlink.match(regex) &&
+        op[1].weight > 0
+      ) {
         // this if will skip trailer's posts
         // we want to upvote any posts upvoted by @steemauto (include self posts)
         if (op[1].voter !== op[1].author || op[1].voter === 'steemauto') {
@@ -85,11 +93,12 @@ const trailupvote = async (userr, author, permlink, fweight) => {
       // we will skip posts which are older than 6.5 days
       if (nowtime - createdtime < 561600 && content.parent_author === '') {
         // get list of all users who are following this trail and are enabled
-        const results = await con.query(
+        let results = await con.query(
           'SELECT `follower`,`weight`,`aftermin`,`votingway` FROM `followers`' +
-          'WHERE `trailer` =? AND `enable`="1"',
+            'WHERE `trailer` =? AND `enable`="1"',
           [userr]
         )
+        results = shuffle(results)
         for (let i in results) {
           const follower = results[i].follower
           // we will skip posts which are already upvoted by same voter (follower)
@@ -112,13 +121,18 @@ const trailupvote = async (userr, author, permlink, fweight) => {
               // User configured to upvote after X minutes
               // we will add information to the database
               // to be upvoted later on the time by 'delay.js'
-              let time = parseInt(nowseconds + (aftermin * 60))
+              let time = parseInt(nowseconds + aftermin * 60)
               time = Math.floor(time)
               upvoteLater(follower, author, permlink, weight, time, userr)
             } else {
               // User configured to vote just now
               // check limitations then broadcast upvote
-              const result = await checkLimits(follower, author, permlink, weight)
+              const result = await checkLimits(
+                follower,
+                author,
+                permlink,
+                weight
+              )
               // broadcast upvote if user detail is not limited
               if (result) upvote(follower, author, permlink, weight)
             }
@@ -134,8 +148,8 @@ const trailupvote = async (userr, author, permlink, fweight) => {
 const upvoteLater = async (follower, author, permlink, weight, time, userr) => {
   await con.query(
     'INSERT INTO `upvotelater`' +
-    '(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`)' +
-    'VALUES (?,?,?,?,?,"0",?)',
+      '(`voter`, `author`, `permlink`, `weight`, `time`,`trail_fan`,`trailer`)' +
+      'VALUES (?,?,?,?,?,"0",?)',
     [follower, author, permlink, weight, time, userr]
   )
 }
