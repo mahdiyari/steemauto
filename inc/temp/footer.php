@@ -7,6 +7,14 @@
 						<br>
 						<a href="/privacy-policy.php">Privacy Policy</a> | <a href="/about-us.php">About us</a>
 					</p>
+					<!-- Histats.com  (div with counter) -->
+					<div id="histats_counter"></div>
+					<noscript>
+						<a href="/" target="_blank">
+							<img  src="//sstatic1.histats.com/0.gif?4198152&101" alt="free site statistics" border="0">
+						</a>
+					</noscript>
+					<!-- Histats.com  END  -->
 					</center>
 				</div>
 			</footer>
@@ -17,6 +25,7 @@
 	<?
 	if($log){
 	?>
+	<!--
 	<div class="modal fade" id="modalwitness" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -25,7 +34,7 @@
 					<h4 class="modal-title">Support Steemauto</h4>
 				</div>
 				<div class="modal-body">
-					<!-- body -->
+					
 					Steemauto is a free and unlimited service which is built for steem community. As a growing website, we need to pay for our servers. We are using a server with <span style="color:green;">256GB RAM</span> and that is not enough for processing over <span style="color:red;">10 millions</span> of upvotes per day. I want to keep Steemauto free and unlimited, and I need your help for this purpose.
 					<br>Kindly, follow below links and support Steemauto by voting @mahdiyari as a witness.
 					<br><br><a href="https://steemconnect.com/sign/account-witness-vote?witness=mahdiyari&approve=1" target="_blank">Vote by steemconnect</a> or <a href="https://steemit.com/~witnesses" target="_blank">Vote by steemit</a>
@@ -37,6 +46,7 @@
 			</div>
 		</div>
 	</div>
+-->
 
 	<div class="modal fade" id="modaldonations" role="dialog">
 			<div class="modal-dialog">
@@ -80,23 +90,25 @@
 	}
 
 	$(function(){
-		if(!getCookie('modalwitness')){
-			$('#modalwitness').modal('show');
-		}
-		if(!getCookie('modaldonations')){
+		if(!getCookie('modaldonations1')){
 			$('#modaldonations').modal('show');
-			setCookie('modaldonations','true',365);
+			setCookie('modaldonations1','true',15);
 		}
 	});
-	function hidemodalwitness(){
-		setCookie('modalwitness','true',365);
-		$('#modalwitness').modal('hide');
-	}
 	function hidemodaldonations(){
-		setCookie('modaldonations','true',365);
+		setCookie('modaldonations1','true',15);
 		$('#modaldonations').modal('hide');
 	}
 
+	var _Hasync= _Hasync|| [];
+	_Hasync.push(['Histats.start', '1,4198152,4,1035,150,25,00000001']);
+	_Hasync.push(['Histats.fasi', '1']);
+	_Hasync.push(['Histats.track_hits', '']);
+	(function() {
+	var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+	hs.src = ('//s10.histats.com/js15_as.js');
+	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+	})();
 	</script>
 	<?
 	}

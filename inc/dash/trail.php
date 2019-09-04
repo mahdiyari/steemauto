@@ -260,6 +260,9 @@ if(isset($_GET['trail']) && $_GET['trail'] != ''){
 								<?
 							}else{ ?>
 								<p style="color:red;">Sorry, that curation trail does not exist. If that account belongs to you, sign up on SteemAuto and create a trail.</p>
+								<hr style="">
+								<p>Or, you can follow anyway! We will create this trail automatically:</p>
+								<button onclick="if(confirm('Are you sure?')){follow('<? echo htmlspecialchars($searchedtrail); ?>');};" class="btn btn-primary" <? if(htmlspecialchars($searchedtrail) == $name){echo 'disabled="disabled"';} ?>>Follow anyway</button>
 							<?
 							}
 							?>

@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
           }))
         })
     }
-  }, k * 60)
+  }, k * 40)
 })
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`)

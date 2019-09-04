@@ -30,12 +30,18 @@ label{
 <div class="content" ng-app="viewer_app" ng-controller="viewer_controller"> <!-- Content -->
 	<div class="row" style="margin:0 !important">
 		<div class="col-md-2"></div>
-		<div style="" class="col-md-8">
+		<div class="col-md-8">
 			<div class="card">
 				<div class="content">
 					<h4 style="border-bottom:1px solid #000;">Support Steemauto</h4>
 					<p>Hello, Steemauto users. As you know, Steemauto is a free service for all steem users and we don't have any earnings from Steemauto.
 						 But, we need to pay for our servers. I know, that is not your business. Just if you can, help us to keep this service free forever.
+					</p>
+					<h4 style="border-bottom:1px solid #000;">Upvoting</h4>
+					<p>We are publishing daily posts by 
+						<a href="https://steemit.com/@steemauto" target="_blank">@steemauto</a> account. You can follow @steemauto in the (Fanbase or Curation trail) to upvote these daily posts.
+						We may change from daily posts to the weekly or monthly posts if we get enough upvotes. 
+						All rewards from posts of @steemauto goes to the steemauto's costs.
 					</p>
 					<h4 style="border-bottom:1px solid #000;">Witness vote</h4>
 					<p>You can support this project by voting @mahdiyari as a steem witness.
@@ -45,15 +51,10 @@ label{
 					</p>
 					<h4 style="border-bottom:1px solid #000;">Donations</h4>
 					<h5>Our bills:</h5>
-					<p>1- 256 GB RAM (hetzner): $200/month</p>
-					<p><del>2- 15 GB RAM (scaleway): $40~$50/month</del></p>
-					<p>2- Soon a new server: +$100</p>
-					<p>3- cloudflare: $10/month</p>
-					<p>4- Mastercard/Visa: ~$20/month</p>
+					<p>1- 256 GB + 64 GB RAM servers: $200/month</p>
+					<p>2- Mastercard/Visa: ~$20/month</p>
 					<hr>
-					<p>Total bill: $250~$300/month</p>
-					<h5>This month goal: $300</h5>
-					<p>Donations for this month: $<?php echo $donations; ?> (Reload page for update)</p>
+					<p>Total bill: $220/month</p>
 					<br><br>
 					<p>You can send your donations (SBD/STEEM) to @steemauto account. Or use below buttons.</p>
 					<h4>Easy donation buttons:</h4>
